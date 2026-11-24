@@ -1,0 +1,2610 @@
+<!DOCTYPE html>
+<html lang="mn">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ЭЕШ Англи Хэл — Шинэ Үг Цээжлэх Платформ</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: #fdf4ff;
+      background-image:
+        radial-gradient(at 8% 10%, rgba(244, 114, 182, 0.26) 0px, transparent 48%),
+        radial-gradient(at 92% 12%, rgba(56, 189, 248, 0.28) 0px, transparent 50%),
+        radial-gradient(at 50% 48%, rgba(167, 139, 250, 0.22) 0px, transparent 52%),
+        radial-gradient(at 15% 88%, rgba(52, 211, 153, 0.26) 0px, transparent 50%),
+        radial-gradient(at 88% 86%, rgba(251, 191, 36, 0.28) 0px, transparent 48%),
+        linear-gradient(135deg, #fff1f2 0%, #eef2ff 38%, #ecfeff 72%, #fefce8 100%);
+      background-attachment: fixed;
+      color: #0f172a;
+      overflow-x: hidden;
+    }
+
+    .rainbow-bar {
+      background: linear-gradient(90deg, #ec4899, #8b5cf6, #06b6d4, #10b981, #f59e0b, #ef4444);
+    }
+
+    .vivid-btn {
+      transition: transform 0.16s ease, box-shadow 0.18s ease, filter 0.18s ease;
+    }
+    .vivid-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px -6px rgba(79, 70, 229, 0.35);
+      filter: brightness(1.04);
+    }
+    .vivid-btn:active {
+      transform: translateY(0px);
+    }
+
+    /* Custom subtle scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #fae8ff;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, #ec4899, #6366f1);
+      border-radius: 9999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, #db2777, #4f46e5);
+    }
+
+    /* Flashcard 3D flip support */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .transform-style-3d {
+      transform-style: preserve-3d;
+    }
+    .backface-hidden {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .rotate-y-180 {
+      transform: rotateY(180deg);
+    }
+
+    /* Image selection canvas cursor */
+    .crop-canvas {
+      cursor: crosshair;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col text-slate-900">
+  <div class="h-1.5 w-full rainbow-bar shrink-0"></div>
+
+  <!-- Toast / Message Banner (replaces alert/confirm) -->
+  <div id="toastContainer" class="fixed top-4 right-4 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none px-4 sm:px-0"></div>
+
+  <!-- Top Navigation Header -->
+  <header id="appHeader" class="bg-gradient-to-r from-indigo-600 via-fuchsia-600 to-cyan-500 text-white border-b-2 border-white/40 sticky top-0 z-30 shadow-lg hidden">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-3">
+      <!-- Brand -->
+      <div class="flex items-center gap-3 min-w-0">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-300 via-rose-500 to-purple-700 flex items-center justify-center text-white font-extrabold shadow-md ring-2 ring-white/70 shrink-0">
+          ЭЕШ
+        </div>
+        <div class="truncate">
+          <div class="text-sm sm:text-base font-extrabold text-white drop-shadow-xs truncate">ЭЕШ Үгийн Сан</div>
+          <div id="headerRoleBadge" class="text-xs text-amber-100 font-medium truncate"></div>
+        </div>
+      </div>
+
+      <!-- Right User Info & Logout -->
+      <div class="flex items-center gap-2 sm:gap-4 shrink-0">
+        <div id="headerUserStats" class="hidden md:flex items-center gap-3 text-xs font-bold bg-white/95 text-slate-800 px-3.5 py-1.5 rounded-xl shadow-sm ring-1 ring-white/60"></div>
+        <button
+          id="btnLogout"
+          type="button"
+          class="vivid-btn px-3.5 py-2 rounded-xl text-xs sm:text-sm font-bold text-rose-700 bg-white hover:bg-amber-50 shadow-sm transition flex items-center gap-1.5"
+        >
+          <span>Гарах</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content Container -->
+  <main id="appMain" class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+
+    <!-- ==================== AUTH / ENTRY VIEW ==================== -->
+    <section id="authView" class="max-w-4xl mx-auto">
+      <div class="text-center mb-8 bg-white/85 backdrop-blur-md rounded-3xl p-6 sm:p-8 border-2 border-fuchsia-200/80 shadow-xl">
+        <span class="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-xs font-extrabold bg-gradient-to-r from-amber-400 via-pink-500 to-violet-600 text-white shadow-sm mb-3">
+          Элсэлтийн Ерөнхий Шалгалтын Англи Хэл
+        </span>
+        <h1 class="text-2xl sm:text-4xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-700 via-fuchsia-600 to-emerald-600 bg-clip-text text-transparent mb-2">
+          Шинэ Үг Цээжлэх Ухаалаг Систем
+        </h1>
+        <p class="text-sm sm:text-base text-slate-600 max-w-2xl mx-auto">
+          Он оны ЭЕШ-ийн материалаас шинэ үгээ ялгаж хавтаслах, дасгал болон тоглоомоор цээжлэх, сурагчдын ахиц, амжилтын эрэмбийг хянах платформ.
+        </p>
+      </div>
+
+      <!-- Role Selector Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
+        <button
+          id="selectRoleStudent"
+          type="button"
+          class="role-card vivid-btn p-5 rounded-2xl border-2 border-fuchsia-500 bg-gradient-to-br from-white via-indigo-50/70 to-fuchsia-50/70 text-left shadow-md transition hover:shadow-xl flex items-start gap-4"
+        >
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-500 text-white flex items-center justify-center font-extrabold text-lg shadow-sm shrink-0">
+            С
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-base sm:text-lg font-extrabold text-indigo-950">Сурагч</span>
+              <span id="badgeStudentSelected" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-indigo-600 to-pink-500 text-white shadow-xs">Сонгогдсон</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Нэр болон кодоор нэвтэрч, он оны хавтаснаас үг цээжилнэ, дасгал & тоглоом тоглоно.
+            </p>
+          </div>
+        </button>
+
+        <button
+          id="selectRoleTeacher"
+          type="button"
+          class="role-card vivid-btn p-5 rounded-2xl border-2 border-cyan-300 bg-gradient-to-br from-white via-cyan-50/70 to-emerald-50/70 text-left shadow-sm transition hover:border-emerald-500 hover:shadow-xl flex items-start gap-4"
+        >
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-600 text-white flex items-center justify-center font-extrabold text-lg shadow-sm shrink-0">
+            Б
+          </div>
+          <div class="flex-1">
+            <div class="flex items-center justify-between">
+              <span class="text-base sm:text-lg font-extrabold text-teal-950">Багш</span>
+              <span id="badgeTeacherSelected" class="hidden text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-gradient-to-r from-emerald-500 to-cyan-600 text-white shadow-xs">Сонгогдсон</span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Материал оруулж доор зурсан үгсийг нэмнэ, үг нэмнэ, сурагчдын ахиц болон эрэмбийг харна.
+            </p>
+          </div>
+        </button>
+      </div>
+
+      <!-- Student Auth Panel -->
+      <div id="studentAuthPanel" class="bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-indigo-200 shadow-lg p-6 sm:p-8">
+        <!-- Mode Tabs: Login vs Register -->
+        <div class="flex gap-2 p-1.5 bg-gradient-to-r from-indigo-100 via-fuchsia-100 to-amber-100 rounded-2xl mb-6 max-w-md">
+          <button
+            id="tabStudentLogin"
+            type="button"
+            class="flex-1 py-2 px-4 rounded-xl text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-sm transition"
+          >
+            Нэвтрэх (Нэр + Код)
+          </button>
+          <button
+            id="tabStudentRegister"
+            type="button"
+            class="flex-1 py-2 px-4 rounded-xl text-sm font-bold text-slate-700 hover:bg-white/70 transition"
+          >
+            Шинэ бүртгэл
+          </button>
+        </div>
+
+        <!-- Existing Student Login Form -->
+        <form id="studentLoginForm" class="space-y-4 max-w-lg">
+          <div>
+            <label class="block text-sm font-bold text-indigo-950 mb-1.5">Сурагчийн нэр</label>
+            <input
+              id="loginStudentName"
+              type="text"
+              required
+              placeholder="Жишээ нь: Тэмүүлэн"
+              class="w-full px-4 py-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/30 focus:bg-white focus:ring-2 focus:ring-fuchsia-400 focus:border-fuchsia-500 outline-none text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-indigo-950 mb-1.5">Хувийн код</label>
+            <input
+              id="loginStudentCode"
+              type="text"
+              required
+              placeholder="Жишээ нь: 12A-1001"
+              class="w-full px-4 py-2.5 rounded-xl border-2 border-indigo-200 bg-indigo-50/30 focus:bg-white focus:ring-2 focus:ring-fuchsia-400 focus:border-fuchsia-500 outline-none text-sm uppercase font-mono"
+            />
+          </div>
+          <div class="pt-2 flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              class="vivid-btn px-6 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white font-bold text-sm shadow-md transition"
+            >
+              Сурагчаар нэвтрэх
+            </button>
+            <span class="text-xs text-slate-500">
+              Жишээ сурагч: <strong class="font-mono text-indigo-700">Тэмүүлэн</strong> / <strong class="font-mono text-fuchsia-700">12A-1001</strong>
+            </span>
+          </div>
+        </form>
+
+        <!-- New Student Registration Form -->
+        <form id="studentRegisterForm" class="space-y-4 max-w-lg hidden">
+          <div>
+            <label class="block text-sm font-bold text-indigo-950 mb-1.5">Сурагчийн овог, нэр эсвэл нэр</label>
+            <input
+              id="regStudentName"
+              type="text"
+              required
+              placeholder="Жишээ нь: Анужин"
+              class="w-full px-4 py-2.5 rounded-xl border-2 border-fuchsia-200 bg-fuchsia-50/30 focus:bg-white focus:ring-2 focus:ring-fuchsia-400 focus:border-fuchsia-500 outline-none text-sm"
+            />
+          </div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-bold text-indigo-950 mb-1.5">Анги бүлэг</label>
+              <select
+                id="regStudentClass"
+                class="w-full px-4 py-2.5 rounded-xl border-2 border-indigo-200 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 outline-none text-sm bg-white font-semibold"
+              >
+                <option value="12а">12а анги</option>
+                <option value="12б">12б анги</option>
+                <option value="12в">12в анги</option>
+                <option value="12г">12г анги</option>
+                <option value="12д">12д анги</option>
+                <option value="12е">12е анги</option>
+                <option value="12ж">12ж анги</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-sm font-bold text-indigo-950 mb-1.5">Нэвтрэх код (автомат эсвэл өөрөө)</label>
+              <div class="flex gap-2">
+                <input
+                  id="regStudentCode"
+                  type="text"
+                  required
+                  class="w-full px-3 py-2.5 rounded-xl border-2 border-indigo-200 focus:ring-2 focus:ring-indigo-400 focus:border-indigo-500 outline-none text-sm uppercase font-mono"
+                />
+                <button
+                  id="btnGenCode"
+                  type="button"
+                  title="Шинэ код үүсгэх"
+                  class="vivid-btn px-3.5 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 text-xs font-extrabold shrink-0 shadow-xs"
+                >
+                  Шинэ
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div id="createdCodeBanner" class="hidden p-4 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-500 text-white text-sm shadow-sm">
+            <div class="font-extrabold mb-1">Бүртгэл амжилттай үүслээ!</div>
+            <p class="text-xs sm:text-sm">
+              Та дараагийн удаа орохдоо <strong id="createdNameDisplay"></strong> нэр болон <strong id="createdCodeDisplay" class="font-mono bg-white text-emerald-800 px-2 py-0.5 rounded"></strong> кодоор нэвтэрнэ.
+            </p>
+          </div>
+
+          <div class="pt-2">
+            <button
+              type="submit"
+              class="vivid-btn px-6 py-2.5 rounded-xl bg-gradient-to-r from-fuchsia-600 via-pink-500 to-amber-500 text-white font-bold text-sm shadow-md transition"
+            >
+              Бүртгүүлээд орох
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Teacher Auth Panel -->
+      <div id="teacherAuthPanel" class="hidden bg-white/95 backdrop-blur-sm rounded-3xl border-2 border-teal-200 shadow-lg p-6 sm:p-8">
+        <form id="teacherLoginForm" class="space-y-4 max-w-lg">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-100 text-teal-800 font-extrabold text-xs mb-1">
+            <span>Багшийн нэвтрэх хэсэг</span>
+          </div>
+          <p class="text-xs sm:text-sm text-slate-600">
+            Зөвхөн багш шинэ үг нэмэх, ЭЕШ-ийн материалын зураг оруулах, сурагчдын амжилтын эрэмбийг харах эрхтэй.
+          </p>
+          <div>
+            <label class="block text-sm font-bold text-teal-950 mb-1.5">Багшийн нэр</label>
+            <input
+              id="teacherNameInput"
+              type="text"
+              value="Б. Оюунчимэг багш"
+              required
+              class="w-full px-4 py-2.5 rounded-xl border-2 border-teal-200 bg-teal-50/30 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-sm"
+            />
+          </div>
+          <div>
+            <label class="block text-sm font-bold text-teal-950 mb-1.5">Багшийн нэвтрэх код</label>
+            <input
+              id="teacherPasscodeInput"
+              type="password"
+              value="TEACHER2026"
+              required
+              class="w-full px-4 py-2.5 rounded-xl border-2 border-teal-200 bg-teal-50/30 focus:bg-white focus:ring-2 focus:ring-teal-500 focus:border-teal-500 outline-none text-sm font-mono"
+            />
+            <p class="text-xs text-slate-400 mt-1">Туршилтын код: <span class="font-mono text-teal-700 font-semibold">TEACHER2026</span></p>
+          </div>
+          <div class="pt-2 flex flex-wrap items-center gap-3">
+            <button
+              type="submit"
+              class="vivid-btn px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-600 to-cyan-600 text-white font-bold text-sm shadow-md transition"
+            >
+              Багшийн цэс рүү орох
+            </button>
+            <button
+              id="btnResetDemo"
+              type="button"
+              class="vivid-btn px-4 py-2.5 rounded-xl border-2 border-amber-300 bg-amber-50 hover:bg-amber-100 text-amber-900 text-xs font-bold transition"
+            >
+              Анхны жишээ өгөгдөл сэргээх
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ==================== TEACHER DASHBOARD VIEW ==================== -->
+    <section id="teacherView" class="hidden space-y-6">
+      <!-- Top Summary KPIs -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="bg-gradient-to-br from-indigo-500 via-purple-600 to-fuchsia-600 text-white p-5 rounded-2xl shadow-md">
+          <div class="text-xs font-semibold text-indigo-100">Нийт шинэ үг</div>
+          <div id="kpiTotalWords" class="text-2xl sm:text-3xl font-extrabold mt-1">0</div>
+          <div class="text-xs text-fuchsia-100 mt-1">Он оны хавтаснуудад</div>
+        </div>
+        <div class="bg-gradient-to-br from-cyan-500 via-teal-500 to-emerald-600 text-white p-5 rounded-2xl shadow-md">
+          <div class="text-xs font-semibold text-cyan-100">Он оны хавтас</div>
+          <div id="kpiTotalFolders" class="text-2xl sm:text-3xl font-extrabold mt-1">0</div>
+          <div class="text-xs text-emerald-100 mt-1">ЭЕШ материалууд</div>
+        </div>
+        <div class="bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 text-white p-5 rounded-2xl shadow-md">
+          <div class="text-xs font-semibold text-amber-50">Бүртгэлтэй сурагч</div>
+          <div id="kpiTotalStudents" class="text-2xl sm:text-3xl font-extrabold mt-1">0</div>
+          <div class="text-xs text-rose-100 mt-1">Идэвхтэй суралцагчид</div>
+        </div>
+        <div class="bg-gradient-to-br from-emerald-500 via-green-500 to-lime-600 text-white p-5 rounded-2xl shadow-md">
+          <div class="text-xs font-semibold text-emerald-50">Дундаж ахиц</div>
+          <div id="kpiAvgProgress" class="text-2xl sm:text-3xl font-extrabold mt-1">0%</div>
+          <div class="text-xs text-lime-100 mt-1">Цээжилсэн үгийн хувь</div>
+        </div>
+      </div>
+
+      <!-- Teacher Sub-Navigation Tabs -->
+      <div class="flex flex-wrap gap-2 bg-white/90 backdrop-blur-xs p-2 rounded-2xl border-2 border-fuchsia-200/80 shadow-sm">
+        <button
+          data-ttab="upload"
+          type="button"
+          class="teacher-tab vivid-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-600 text-white shadow-sm transition"
+        >
+          1. Материал оруулах (Зургаас үг нэмэх)
+        </button>
+        <button
+          data-ttab="words"
+          type="button"
+          class="teacher-tab vivid-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-indigo-900 hover:bg-indigo-50 transition"
+        >
+          2. Он оны хавтас & Үг нэмэх
+        </button>
+        <button
+          data-ttab="students"
+          type="button"
+          class="teacher-tab vivid-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-fuchsia-900 hover:bg-fuchsia-50 transition"
+        >
+          3. Сурагчдын үр дүн & Амжилтын эрэмбэ
+        </button>
+      </div>
+
+      <!-- TAB 1: UPLOAD MATERIAL & SELECT UNDERLINED WORDS -->
+      <div id="teacherTab-upload" class="teacher-panel space-y-6">
+        <div class="bg-white/95 rounded-3xl border-2 border-cyan-200 shadow-lg p-5 sm:p-6">
+          <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b-2 border-fuchsia-100">
+            <div>
+              <h2 class="text-lg sm:text-xl font-extrabold bg-gradient-to-r from-indigo-700 via-fuchsia-600 to-teal-600 bg-clip-text text-transparent">
+                ЭЕШ-ийн материалын зураг оруулах
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
+                Он сонгоод зураг оруулна уу. Зураг дээр доогуур нь зурсан үг дээр <strong>хүрээлж/дарж</strong> сонгоход шинэ үгийн тоонд шууд нэмэгдэнэ.
+              </p>
+            </div>
+            <div class="flex flex-wrap items-center gap-2">
+              <label class="text-xs font-bold text-indigo-950">Шалгалтын он:</label>
+              <select
+                id="materialYearSelect"
+                class="px-3.5 py-2 rounded-xl border-2 border-indigo-300 text-sm font-extrabold text-indigo-900 bg-indigo-50 focus:ring-2 focus:ring-fuchsia-500 outline-none"
+              >
+                <option value="2020">2020 он</option>
+                <option value="2021">2021 он</option>
+                <option value="2022">2022 он</option>
+                <option value="2023">2023 он</option>
+                <option value="2024">2024 он</option>
+                <option value="2025">2025 он</option>
+              </select>
+              <span id="materialFolderBadge" class="px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-pink-500 text-white text-xs font-extrabold shadow-xs">
+                Хавтас: 2020 оны шинэ үгс
+              </span>
+            </div>
+          </div>
+
+          <!-- Upload Controls -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 pt-5">
+            <div class="lg:col-span-7 space-y-4">
+              <div class="flex flex-wrap items-center gap-3">
+                <label class="vivid-btn px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white text-xs sm:text-sm font-bold cursor-pointer transition shadow-sm">
+                  <span>Зураг сонгох (Файл)</span>
+                  <input id="materialImageInput" type="file" accept="image/*" class="hidden" />
+                </label>
+                <button
+                  id="btnLoadSampleExam"
+                  type="button"
+                  class="vivid-btn px-4 py-2.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-500 text-amber-950 text-xs sm:text-sm font-extrabold transition shadow-xs"
+                >
+                  Жишээ ЭЕШ хуудас ачаалах
+                </button>
+                <button
+                  id="btnClearBoxes"
+                  type="button"
+                  class="vivid-btn px-3 py-2.5 rounded-xl border-2 border-rose-200 bg-rose-50 hover:bg-rose-100 text-rose-700 text-xs font-bold transition"
+                >
+                  Тэмдэглэгээ цэвэрлэх
+                </button>
+              </div>
+
+              <!-- Interactive Canvas Wrapper -->
+              <div class="relative rounded-2xl border-2 border-dashed border-fuchsia-400 bg-gradient-to-br from-indigo-50/70 via-fuchsia-50/50 to-cyan-50/70 overflow-hidden min-h-[300px] flex items-center justify-center">
+                <canvas id="materialCanvas" class="crop-canvas max-w-full block"></canvas>
+                <div id="canvasEmptyHint" class="text-center p-6 text-indigo-900/75">
+                  <p class="text-sm font-bold">ЭЕШ-ийн материалын зураг оруулна уу</p>
+                  <p class="text-xs mt-1">Эсвэл «Жишээ ЭЕШ хуудас ачаалах» товчийг дарж доор зурсан үгсийг сонгож үзнэ үү.</p>
+                </div>
+              </div>
+              <p class="text-xs text-slate-600">
+                Зөвлөмж: Зураг дээр хулганаар эсвэл хуруугаар чирж доогуур нь зурсан үгийг хүрээлбэл баруун талд үг нэмэх хэсэгт автоматаар бэлтгэгдэнэ.
+              </p>
+            </div>
+
+            <!-- Right Panel: Extracted / Selected Underlined Words Form -->
+            <div class="lg:col-span-5 bg-gradient-to-br from-indigo-50/90 via-purple-50/70 to-pink-50/80 rounded-2xl border-2 border-fuchsia-200 p-4 sm:p-5 flex flex-col justify-between space-y-4">
+              <div>
+                <h3 class="text-sm font-extrabold text-indigo-950 mb-1">Доор нь зурсан үгийг шинэ үгэнд нэмэх</h3>
+                <p class="text-xs text-slate-600 mb-4">
+                  Сонгосон хэсгийн англи үг болон монгол орчуулгыг баталгаажуулж <strong id="targetFolderLabel" class="text-fuchsia-700">2020 оны шинэ үгс</strong> хавтаст нэмнэ.
+                </p>
+
+                <!-- Quick clickable detected underlined words from sample/preset -->
+                <div id="quickDetectedWordsBox" class="mb-4 hidden">
+                  <div class="text-xs font-bold text-rose-700 mb-2">Зураг дээрх доогуур зурсан үгс (дарж сонгох):</div>
+                  <div id="quickDetectedChips" class="flex flex-wrap gap-1.5"></div>
+                </div>
+
+                <form id="addExtractedWordForm" class="space-y-3">
+                  <div>
+                    <label class="block text-xs font-bold text-indigo-950 mb-1">Англи үг (Доор нь зурсан үг)</label>
+                    <input
+                      id="extractedWordEn"
+                      type="text"
+                      required
+                      placeholder="Жишээ нь: sustainable"
+                      class="w-full px-3.5 py-2 rounded-xl border-2 border-indigo-200 bg-white text-sm font-bold focus:ring-2 focus:ring-fuchsia-500 outline-none"
+                    />
+                  </div>
+                  <div class="grid grid-cols-2 gap-2.5">
+                    <div>
+                      <label class="block text-xs font-bold text-indigo-950 mb-1">Хэлц / Төрөл</label>
+                      <select
+                        id="extractedWordPos"
+                        class="w-full px-3 py-2 rounded-xl border-2 border-indigo-200 bg-white text-xs font-bold focus:ring-2 focus:ring-fuchsia-500 outline-none"
+                      >
+                        <option value="adj.">adj. (тэмдэг нэр)</option>
+                        <option value="n.">n. (нэр үг)</option>
+                        <option value="v.">v. (үйл үг)</option>
+                        <option value="adv.">adv. (дайвар үг)</option>
+                        <option value="phr.">phr. (хэлц)</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label class="block text-xs font-bold text-indigo-950 mb-1">Монгол утга</label>
+                      <input
+                        id="extractedWordMn"
+                        type="text"
+                        required
+                        placeholder="тогтвортой"
+                        class="w-full px-3 py-2 rounded-xl border-2 border-indigo-200 bg-white text-sm font-medium focus:ring-2 focus:ring-fuchsia-500 outline-none"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-indigo-950 mb-1">Жишээ өгүүлбэр (Англи)</label>
+                    <input
+                      id="extractedWordEx"
+                      type="text"
+                      placeholder="We need sustainable energy sources."
+                      class="w-full px-3.5 py-2 rounded-xl border-2 border-indigo-200 bg-white text-xs focus:ring-2 focus:ring-fuchsia-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-indigo-950 mb-1">Жишээний монгол орчуулга</label>
+                    <input
+                      id="extractedWordExMn"
+                      type="text"
+                      placeholder="Бидэнд тогтвортой эрчим хүчний эх үүсвэр хэрэгтэй."
+                      class="w-full px-3.5 py-2 rounded-xl border-2 border-indigo-200 bg-white text-xs focus:ring-2 focus:ring-fuchsia-500 outline-none"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    class="vivid-btn w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 text-white font-extrabold text-sm shadow-md transition"
+                  >
+                    + Шинэ үгийн тоонд нэмэх
+                  </button>
+                </form>
+              </div>
+
+              <!-- Recently added words in this session/year -->
+              <div class="pt-3 border-t-2 border-fuchsia-200/70">
+                <div class="flex items-center justify-between text-xs font-bold text-indigo-950 mb-2">
+                  <span>Тухайн оны хавтаст нэмэгдсэн үгс:</span>
+                  <span id="currentYearWordCountBadge" class="px-2.5 py-0.5 rounded-full bg-gradient-to-r from-indigo-600 to-fuchsia-600 text-white font-extrabold">0 үг</span>
+                </div>
+                <div id="recentYearWordsList" class="max-h-32 overflow-y-auto space-y-1.5 text-xs"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: FOLDERS & DIRECT WORD MANAGEMENT -->
+      <div id="teacherTab-words" class="teacher-panel hidden space-y-6">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Create Folder / Add Word Direct -->
+          <div class="lg:col-span-5 bg-white/95 rounded-3xl border-2 border-violet-200 shadow-lg p-5 sm:p-6 space-y-5">
+            <div>
+              <h3 class="text-base font-extrabold text-violet-950">Шинэ оны хавтас үүсгэх</h3>
+              <p class="text-xs text-slate-500 mt-0.5">Жишээ нь: 2019, 2022 эсвэл дурын ЭЕШ-ийн он</p>
+              <form id="createFolderForm" class="flex gap-2 mt-3">
+                <input
+                  id="newFolderYearInput"
+                  type="number"
+                  min="2005"
+                  max="2035"
+                  placeholder="2022"
+                  required
+                  class="w-28 px-3 py-2 rounded-xl border-2 border-violet-300 bg-violet-50/40 text-sm font-mono font-extrabold focus:ring-2 focus:ring-violet-500 outline-none"
+                />
+                <button
+                  type="submit"
+                  class="vivid-btn px-4 py-2 rounded-xl bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white text-xs sm:text-sm font-bold shadow-sm transition"
+                >
+                  Хавтас үүсгэх
+                </button>
+              </form>
+            </div>
+
+            <div class="pt-5 border-t-2 border-violet-100">
+              <h3 class="text-base font-extrabold text-teal-950 mb-3">Хавтаст шууд үг нэмэх</h3>
+              <form id="directAddWordForm" class="space-y-3">
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Хавтас сонгох</label>
+                  <select
+                    id="directWordFolderSelect"
+                    class="w-full px-3.5 py-2 rounded-xl border-2 border-teal-200 bg-teal-50/30 text-sm font-bold focus:ring-2 focus:ring-teal-500 outline-none"
+                  ></select>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Англи үг</label>
+                    <input
+                      id="directWordEn"
+                      type="text"
+                      required
+                      placeholder="ambitious"
+                      class="w-full px-3.5 py-2 rounded-xl border-2 border-indigo-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Монгол утга</label>
+                    <input
+                      id="directWordMn"
+                      type="text"
+                      required
+                      placeholder="зорилго тэмүүлэлтэй"
+                      class="w-full px-3.5 py-2 rounded-xl border-2 border-indigo-200 text-sm focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
+                  </div>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Хэл ярианы хэсэг</label>
+                    <select
+                      id="directWordPos"
+                      class="w-full px-3 py-2 rounded-xl border-2 border-indigo-200 bg-white text-xs font-bold focus:ring-2 focus:ring-indigo-500 outline-none"
+                    >
+                      <option value="adj.">adj.</option>
+                      <option value="n.">n.</option>
+                      <option value="v.">v.</option>
+                      <option value="adv.">adv.</option>
+                      <option value="phr.">phr.</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-xs font-bold text-slate-700 mb-1">Жишээ өгүүлбэр</label>
+                    <input
+                      id="directWordEx"
+                      type="text"
+                      placeholder="She has an ambitious plan."
+                      class="w-full px-3 py-2 rounded-xl border-2 border-indigo-200 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label class="block text-xs font-bold text-slate-700 mb-1">Жишээний орчуулга</label>
+                  <input
+                    id="directWordExMn"
+                    type="text"
+                    placeholder="Тэрээр томоохон зорилготой төлөвлөгөөтэй."
+                    class="w-full px-3.5 py-2 rounded-xl border-2 border-indigo-200 text-xs focus:ring-2 focus:ring-indigo-500 outline-none"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  class="vivid-btn w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-emerald-500 via-teal-500 to-cyan-600 text-white font-extrabold text-sm shadow-sm transition"
+                >
+                  Үг нэмэх
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Folders & Words Browser -->
+          <div class="lg:col-span-7 bg-white/95 rounded-3xl border-2 border-pink-200 shadow-lg p-5 sm:p-6">
+            <div class="flex flex-wrap items-center justify-between gap-2 mb-4">
+              <h3 class="text-base font-extrabold text-pink-950">Он оны шинэ үгсийн хавтаснууд</h3>
+              <span id="teacherFolderCountText" class="text-xs font-bold px-3 py-1 rounded-full bg-pink-100 text-pink-700"></span>
+            </div>
+
+            <div id="teacherFoldersGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6"></div>
+
+            <div class="border-t-2 border-pink-100 pt-4">
+              <div class="flex items-center justify-between mb-3">
+                <h4 id="selectedFolderWordsTitle" class="text-sm font-extrabold text-indigo-950">Хавтасны үгс</h4>
+                <span id="selectedFolderWordsCount" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-indigo-100 text-indigo-700"></span>
+              </div>
+              <div id="teacherSelectedWordsList" class="space-y-2 max-h-96 overflow-y-auto pr-1"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: STUDENT PROGRESS, ANALYTICS & RANKED LEADERBOARD -->
+      <div id="teacherTab-students" class="teacher-panel hidden space-y-6">
+        <div class="bg-white/95 rounded-3xl border-2 border-amber-200 shadow-lg p-5 sm:p-6">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-5">
+            <div>
+              <h2 class="text-lg sm:text-xl font-extrabold bg-gradient-to-r from-amber-600 via-pink-600 to-indigo-700 bg-clip-text text-transparent">
+                Сурагчдын амжилтын эрэмбэ & хяналт
+              </h2>
+              <p class="text-xs sm:text-sm text-slate-600">
+                Сурагч бүрийн цээжилсэн үгийн тоо, дасгал/тоглоомын үр дүн, ахиц болон амжилтын оноогоор эрэмбэлсэн жагсаалт.
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              <label class="text-xs font-bold text-slate-700">Анги шүүх:</label>
+              <select
+                id="leaderboardClassFilter"
+                class="px-3 py-2 rounded-xl border-2 border-amber-300 bg-amber-50 text-xs sm:text-sm font-extrabold text-amber-950 focus:ring-2 focus:ring-amber-500 outline-none"
+              >
+                <option value="ALL">Бүх анги</option>
+                <option value="12а">12а</option>
+                <option value="12б">12б</option>
+                <option value="12в">12в</option>
+                <option value="12г">12г</option>
+                <option value="12д">12д</option>
+                <option value="12е">12е</option>
+                <option value="12ж">12ж</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Top 3 Podium Cards -->
+          <div id="topThreePodium" class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6"></div>
+
+          <!-- Full Ranked Table -->
+          <div class="overflow-x-auto rounded-2xl border-2 border-indigo-100">
+            <table class="w-full text-left border-collapse">
+              <thead>
+                <tr class="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white text-xs font-extrabold uppercase">
+                  <th class="py-3.5 px-4">Байр</th>
+                  <th class="py-3.5 px-4">Сурагч & Код</th>
+                  <th class="py-3.5 px-4">Анги</th>
+                  <th class="py-3.5 px-4">Цээжилсэн үг</th>
+                  <th class="py-3.5 px-4">Дасгал/Тоглоом үр дүн</th>
+                  <th class="py-3.5 px-4">Ахиц</th>
+                  <th class="py-3.5 px-4 text-right">Амжилтын оноо</th>
+                  <th class="py-3.5 px-4 text-right">Үйлдэл</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboardTableBody" class="divide-y divide-fuchsia-100 text-sm bg-white"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== STUDENT DASHBOARD VIEW ==================== -->
+    <section id="studentView" class="hidden space-y-6">
+      <!-- Student Profile & Progress Banner -->
+      <div class="bg-white/95 rounded-3xl border-2 border-fuchsia-200 shadow-lg p-5 sm:p-6">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+          <div>
+            <div class="flex flex-wrap items-center gap-2">
+              <h1 id="studentWelcomeName" class="text-xl sm:text-2xl font-extrabold bg-gradient-to-r from-indigo-700 via-fuchsia-600 to-teal-600 bg-clip-text text-transparent"></h1>
+              <span id="studentCodeBadge" class="px-3 py-0.5 rounded-lg bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-mono font-bold shadow-xs"></span>
+              <span id="studentClassBadge" class="px-3 py-0.5 rounded-lg bg-amber-100 text-amber-900 border border-amber-300 text-xs font-bold"></span>
+            </div>
+            <p class="text-xs sm:text-sm text-slate-600 mt-1">
+              Он оны хавтас руу орж флаш карт, дасгал, тоглоомоор шинэ үгээ цээжлээрэй.
+            </p>
+          </div>
+
+          <div class="grid grid-cols-3 gap-3 sm:gap-4 shrink-0">
+            <div class="bg-gradient-to-br from-indigo-500 to-purple-600 text-white rounded-2xl px-4 py-2.5 text-center shadow-sm">
+              <div id="studentMemorizedCount" class="text-lg sm:text-xl font-extrabold">0/0</div>
+              <div class="text-[11px] font-semibold text-indigo-100">Цээжилсэн үг</div>
+            </div>
+            <div class="bg-gradient-to-br from-amber-400 to-orange-500 text-amber-950 rounded-2xl px-4 py-2.5 text-center shadow-sm">
+              <div id="studentPointsVal" class="text-lg sm:text-xl font-extrabold">0</div>
+              <div class="text-[11px] font-bold text-amber-900">Амжилтын оноо</div>
+            </div>
+            <div class="bg-gradient-to-br from-emerald-500 to-teal-600 text-white rounded-2xl px-4 py-2.5 text-center shadow-sm">
+              <div id="studentAccuracyVal" class="text-lg sm:text-xl font-extrabold">0%</div>
+              <div class="text-[11px] font-semibold text-emerald-100">Дундаж үр дүн</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Overall Progress Bar -->
+        <div class="mt-5 pt-4 border-t-2 border-fuchsia-100">
+          <div class="flex items-center justify-between text-xs font-extrabold mb-1.5">
+            <span class="text-indigo-950">Нийт үг цээжлэлтийн ахиц</span>
+            <span id="studentProgressPercent" class="text-fuchsia-600">0%</span>
+          </div>
+          <div class="w-full h-3 bg-indigo-100 rounded-full overflow-hidden p-0.5">
+            <div id="studentProgressBar" class="h-full bg-gradient-to-r from-indigo-600 via-fuchsia-500 to-amber-400 rounded-full transition-all duration-300" style="width: 0%"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STUDENT FOLDER LIST SCREEN -->
+      <div id="studentFoldersScreen" class="space-y-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-lg sm:text-xl font-extrabold text-indigo-950">Он оны шинэ үгсийн хавтаснууд</h2>
+          <span id="studentFoldersSummary" class="text-xs font-bold px-3 py-1 rounded-full bg-fuchsia-100 text-fuchsia-800"></span>
+        </div>
+        <div id="studentFoldersGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <!-- STUDENT ACTIVE FOLDER LEARNING SCREEN -->
+      <div id="studentFolderWorkspace" class="hidden space-y-5">
+        <div class="flex flex-wrap items-center justify-between gap-3 bg-white/95 p-4 rounded-2xl border-2 border-indigo-200 shadow-sm">
+          <div class="flex items-center gap-3">
+            <button
+              id="btnBackToFolders"
+              type="button"
+              class="vivid-btn px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-amber-950 text-xs sm:text-sm font-extrabold transition shadow-xs"
+            >
+              ← Хавтаснууд руу
+            </button>
+            <div>
+              <h2 id="activeFolderTitle" class="text-base sm:text-lg font-extrabold text-indigo-950"></h2>
+              <p id="activeFolderSub" class="text-xs text-slate-600 font-medium"></p>
+            </div>
+          </div>
+
+          <!-- Learning Mode Switcher -->
+          <div class="flex flex-wrap gap-1.5 bg-gradient-to-r from-indigo-100 via-fuchsia-100 to-teal-100 p-1.5 rounded-xl">
+            <button
+              data-smode="flashcards"
+              type="button"
+              class="student-mode-btn vivid-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow-xs transition"
+            >
+              Флаш карт
+            </button>
+            <button
+              data-smode="exercise"
+              type="button"
+              class="student-mode-btn vivid-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold text-indigo-950 hover:bg-white/80 transition"
+            >
+              Дасгал
+            </button>
+            <button
+              data-smode="game"
+              type="button"
+              class="student-mode-btn vivid-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold text-fuchsia-950 hover:bg-white/80 transition"
+            >
+              Тоглоом
+            </button>
+          </div>
+        </div>
+
+        <!-- MODE 1: FLASHCARDS -->
+        <div id="studentMode-flashcards" class="student-mode-panel space-y-4">
+          <div id="flashcardContainer" class="max-w-2xl mx-auto"></div>
+        </div>
+
+        <!-- MODE 2: EXERCISES (MULTIPLE CHOICE + FILL BLANK) -->
+        <div id="studentMode-exercise" class="student-mode-panel hidden space-y-4">
+          <div id="exerciseContainer" class="max-w-2xl mx-auto bg-white/95 rounded-3xl border-2 border-indigo-200 shadow-lg p-5 sm:p-7"></div>
+        </div>
+
+        <!-- MODE 3: TIMED MINI-GAME (SPEED MATCH CHALLENGE) -->
+        <div id="studentMode-game" class="student-mode-panel hidden space-y-4">
+          <div id="gameContainer" class="max-w-3xl mx-auto bg-white/95 rounded-3xl border-2 border-fuchsia-200 shadow-lg p-5 sm:p-7"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <script>
+    /**
+     * =========================================================================
+     * ЭЕШ АНГЛИ ХЭЛНИЙ ШИНЭ ҮГ ЦЭЭЖЛЭХ СИСТЕМ
+     * Бүх төлөв (state) localStorage дээр хадгалагдана.
+     * =========================================================================
+     */
+
+    const STORAGE_KEY = 'eesh_vocab_system_v1';
+    const TEACHER_PASSCODE = 'TEACHER2026';
+
+    // Default initial seed data
+    const DEFAULT_STATE = {
+      folders: [
+        { id: '2020', year: 2020, title: '2020 оны шинэ үгс' },
+        { id: '2021', year: 2021, title: '2021 оны шинэ үгс' }
+      ],
+      words: [
+        {
+          id: 'w-2020-1',
+          folderId: '2020',
+          en: 'sustainable',
+          pos: 'adj.',
+          mn: 'тогтвортой, удаан хугацаанд хадгалагдах',
+          ex: 'Countries are investing in sustainable renewable energy.',
+          exMn: 'Улс орнууд тогтвортой сэргээгдэх эрчим хүчинд хөрөнгө оруулж байна.'
+        },
+        {
+          id: 'w-2020-2',
+          folderId: '2020',
+          en: 'inevitable',
+          pos: 'adj.',
+          mn: 'зайлшгүй, гарцаагүй',
+          ex: 'Technological change is inevitable in modern society.',
+          exMn: 'Орчин үеийн нийгэмд технологийн өөрчлөлт зайлшгүй юм.'
+        },
+        {
+          id: 'w-2020-3',
+          folderId: '2020',
+          en: 'allocate',
+          pos: 'v.',
+          mn: 'хуваарилах, зориулах',
+          ex: 'The school decided to allocate more funds to science labs.',
+          exMn: 'Сургууль шинжлэх ухааны лабораторид илүү санхүүжилт хуваарилахаар шийдсэн.'
+        },
+        {
+          id: 'w-2020-4',
+          folderId: '2020',
+          en: 'consequence',
+          pos: 'n.',
+          mn: 'үр дагавар',
+          ex: 'Every decision has a consequence.',
+          exMn: 'Шийдвэр бүр тодорхой үр дагавартай.'
+        },
+        {
+          id: 'w-2021-1',
+          folderId: '2021',
+          en: 'reliable',
+          pos: 'adj.',
+          mn: 'найдвартай',
+          ex: 'We need a reliable source of information for our research.',
+          exMn: 'Бид судалгаандаа мэдээллийн найдвартай эх сурвалж хэрэгтэй.'
+        },
+        {
+          id: 'w-2021-2',
+          folderId: '2021',
+          en: 'significantly',
+          pos: 'adv.',
+          mn: 'ихээхэн, мэдэгдэхүйц',
+          ex: 'Air quality improved significantly last year.',
+          exMn: 'Өнгөрсөн жил агаарын чанар мэдэгдэхүйц сайжирсан.'
+        },
+        {
+          id: 'w-2021-3',
+          folderId: '2021',
+          en: 'beneficial',
+          pos: 'adj.',
+          mn: 'ашиг тустай, үр өгөөжтэй',
+          ex: 'Regular exercise is beneficial to mental health.',
+          exMn: 'Тогтмол дасгал хөдөлгөөн сэтгэцийн эрүүл мэндэд тустай.'
+        },
+        {
+          id: 'w-2021-4',
+          folderId: '2021',
+          en: 'implement',
+          pos: 'v.',
+          mn: 'хэрэгжүүлэх, нэвтрүүлэх',
+          ex: 'The government will implement new education policies.',
+          exMn: 'Засгийн газар боловсролын шинэ бодлогыг хэрэгжүүлнэ.'
+        }
+      ],
+      students: [],
+      session: null // { role: 'teacher' | 'student', id?: string, name: string }
+    };
+
+    // Sample underlined words associated with the built-in sample exam image
+    const SAMPLE_UNDERLINED_WORDS = [
+      { en: 'abandon', pos: 'v.', mn: 'орхих, хаях', ex: 'They had to abandon the project due to lack of funds.', exMn: 'Санхүүжилт дутмагаас болж тэд төслийг орхиход хүрсэн.' },
+      { en: 'accurate', pos: 'adj.', mn: 'оновчтой, үнэн зөв', ex: 'The report provides accurate data on exam results.', exMn: 'Тайланд шалгалтын дүнгийн үнэн зөв тоон мэдээллийг өгсөн.' },
+      { en: 'contribute', pos: 'v.', mn: 'хувь нэмэр оруулах', ex: 'Volunteers contribute greatly to community development.', exMn: 'Сайн дурынхан олон нийтийн хөгжилд их хувь нэмэр оруулдаг.' }
+    ];
+
+    let appState = loadState();
+
+    // Runtime UI state (not persisted)
+    let authRole = 'student';
+    let teacherActiveTab = 'upload';
+    let teacherSelectedFolderId = '2020';
+    let studentActiveFolderId = null;
+    let studentLearningMode = 'flashcards';
+
+    // Distinct vibrant color palettes for year folders
+    const FOLDER_THEMES = [
+      {
+        cardBg: 'from-rose-500 via-pink-500 to-fuchsia-600 text-white border-rose-300',
+        pill: 'bg-white/25 text-white',
+        sub: 'text-rose-100',
+        track: 'bg-white/25',
+        fill: 'bg-amber-300'
+      },
+      {
+        cardBg: 'from-indigo-600 via-violet-600 to-purple-600 text-white border-indigo-300',
+        pill: 'bg-white/25 text-white',
+        sub: 'text-indigo-100',
+        track: 'bg-white/25',
+        fill: 'bg-cyan-300'
+      },
+      {
+        cardBg: 'from-cyan-500 via-teal-500 to-emerald-600 text-white border-cyan-300',
+        pill: 'bg-white/25 text-white',
+        sub: 'text-cyan-100',
+        track: 'bg-white/25',
+        fill: 'bg-lime-300'
+      },
+      {
+        cardBg: 'from-amber-400 via-orange-500 to-red-500 text-white border-amber-300',
+        pill: 'bg-white/25 text-white',
+        sub: 'text-amber-50',
+        track: 'bg-white/25',
+        fill: 'bg-white'
+      },
+      {
+        cardBg: 'from-emerald-500 via-green-500 to-teal-600 text-white border-emerald-300',
+        pill: 'bg-white/25 text-white',
+        sub: 'text-emerald-100',
+        track: 'bg-white/25',
+        fill: 'bg-amber-300'
+      },
+      {
+        cardBg: 'from-fuchsia-500 via-purple-600 to-indigo-700 text-white border-fuchsia-300',
+        pill: 'bg-white/25 text-white',
+        sub: 'text-fuchsia-100',
+        track: 'bg-white/25',
+        fill: 'bg-pink-200'
+      }
+    ];
+
+    function getFolderTheme(year) {
+      const num = Math.abs(parseInt(year, 10) || 0);
+      return FOLDER_THEMES[num % FOLDER_THEMES.length];
+    }
+
+    // Flashcard state
+    let flashcardIndex = 0;
+    let flashcardFlipped = false;
+
+    // Exercise state
+    let exerciseQuestions = [];
+    let exerciseIndex = 0;
+    let exerciseScore = 0;
+    let exerciseAnswered = false;
+    let exerciseSelectedOption = null;
+
+    // Game state
+    let gameTimerId = null;
+    let gameTimeLeft = 30;
+    let gameScore = 0;
+    let gameCorrectCount = 0;
+    let gameTotalCount = 0;
+    let gameCurrentPair = null;
+    let gameRunning = false;
+
+    // Canvas drawing state for underlined word selection
+    let canvasImg = null;
+    let selectionBoxes = []; // { x, y, w, h } in canvas coords
+    let isDrawingBox = false;
+    let drawStart = { x: 0, y: 0 };
+    let currentBox = null;
+
+    // ==================== STATE PERSISTENCE & HELPERS ====================
+
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(DEFAULT_STATE));
+          return structuredClone(DEFAULT_STATE);
+        }
+        const parsed = JSON.parse(raw);
+        return {
+          folders: Array.isArray(parsed.folders) ? parsed.folders : structuredClone(DEFAULT_STATE.folders),
+          words: Array.isArray(parsed.words) ? parsed.words : structuredClone(DEFAULT_STATE.words),
+          students: Array.isArray(parsed.students) ? parsed.students : structuredClone(DEFAULT_STATE.students),
+          session: parsed.session || null
+        };
+      } catch (err) {
+        console.error('Failed to load state:', err);
+        return structuredClone(DEFAULT_STATE);
+      }
+    }
+
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState));
+      } catch (err) {
+        console.error('Failed to save state:', err);
+        showToast('Өгөгдөл хадгалахад алдаа гарлаа.', 'error');
+      }
+    }
+
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const colors = {
+        success: 'bg-emerald-600 text-white border-emerald-700',
+        error: 'bg-rose-600 text-white border-rose-700',
+        info: 'bg-slate-900 text-white border-slate-800'
+      };
+      const el = document.createElement('div');
+      el.className = `pointer-events-auto px-4 py-3 rounded-xl border shadow-lg text-xs sm:text-sm font-semibold transition-all ${colors[type] || colors.info}`;
+      el.textContent = message;
+      container.appendChild(el);
+      setTimeout(() => {
+        el.style.opacity = '0';
+        setTimeout(() => el.remove(), 250);
+      }, 3000);
+    }
+
+    function ensureFolderForYear(yearStr) {
+      const cleanYear = String(yearStr).trim();
+      const yearNum = parseInt(cleanYear, 10);
+      if (!yearNum || yearNum < 1990 || yearNum > 2040) return null;
+
+      let folder = appState.folders.find(f => String(f.year) === String(yearNum));
+      if (!folder) {
+        folder = {
+          id: String(yearNum),
+          year: yearNum,
+          title: `${yearNum} оны шинэ үгс`
+        };
+        appState.folders.push(folder);
+        appState.folders.sort((a, b) => a.year - b.year);
+      }
+      return folder;
+    }
+
+    function getCurrentStudent() {
+      if (!appState.session || appState.session.role !== 'student') return null;
+      return appState.students.find(s => s.id === appState.session.id) || null;
+    }
+
+    function calculateStudentMetrics(student) {
+      const totalWords = appState.words.length;
+      const validMemIds = student.memorizedWordIds.filter(wid => appState.words.some(w => w.id === wid));
+      const memorizedCount = validMemIds.length;
+      const progressPct = totalWords > 0 ? Math.round((memorizedCount / totalWords) * 100) : 0;
+      const accuracyPct = student.quizAttempts > 0
+        ? Math.round((student.quizCorrect / student.quizAttempts) * 100)
+        : 0;
+      return {
+        totalWords,
+        memorizedCount,
+        progressPct,
+        accuracyPct,
+        points: student.points || 0
+      };
+    }
+
+    function speakEnglish(text) {
+      try {
+        if ('speechSynthesis' in window) {
+          window.speechSynthesis.cancel();
+          const utter = new SpeechSynthesisUtterance(text);
+          utter.lang = 'en-US';
+          utter.rate = 0.92;
+          window.speechSynthesis.speak(utter);
+        } else {
+          showToast('Таны хөтөч дуудлага уншихыг дэмжихгүй байна.', 'info');
+        }
+      } catch (e) {
+        console.warn('TTS error:', e);
+      }
+    }
+
+    // ==================== AUTH & NAVIGATION ====================
+
+    function initAuthUI() {
+      const btnRoleStudent = document.getElementById('selectRoleStudent');
+      const btnRoleTeacher = document.getElementById('selectRoleTeacher');
+      const studentPanel = document.getElementById('studentAuthPanel');
+      const teacherPanel = document.getElementById('teacherAuthPanel');
+
+      function applyRoleSelection(role) {
+        authRole = role;
+        if (role === 'student') {
+          btnRoleStudent.classList.add('border-indigo-600');
+          btnRoleStudent.classList.remove('border-slate-200');
+          document.getElementById('badgeStudentSelected').classList.remove('hidden');
+
+          btnRoleTeacher.classList.remove('border-teal-600');
+          btnRoleTeacher.classList.add('border-slate-200');
+          document.getElementById('badgeTeacherSelected').classList.add('hidden');
+
+          studentPanel.classList.remove('hidden');
+          teacherPanel.classList.add('hidden');
+        } else {
+          btnRoleTeacher.classList.add('border-teal-600');
+          btnRoleTeacher.classList.remove('border-slate-200');
+          document.getElementById('badgeTeacherSelected').classList.remove('hidden');
+
+          btnRoleStudent.classList.remove('border-indigo-600');
+          btnRoleStudent.classList.add('border-slate-200');
+          document.getElementById('badgeStudentSelected').classList.add('hidden');
+
+          teacherPanel.classList.remove('hidden');
+          studentPanel.classList.add('hidden');
+        }
+      }
+
+      btnRoleStudent.addEventListener('click', () => applyRoleSelection('student'));
+      btnRoleTeacher.addEventListener('click', () => applyRoleSelection('teacher'));
+
+      // Student login vs register tabs
+      const tabLogin = document.getElementById('tabStudentLogin');
+      const tabReg = document.getElementById('tabStudentRegister');
+      const loginForm = document.getElementById('studentLoginForm');
+      const regForm = document.getElementById('studentRegisterForm');
+
+      tabLogin.addEventListener('click', () => {
+        tabLogin.className = 'flex-1 py-2 px-4 rounded-lg text-sm font-semibold bg-white text-indigo-700 shadow-xs transition';
+        tabReg.className = 'flex-1 py-2 px-4 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition';
+        loginForm.classList.remove('hidden');
+        regForm.classList.add('hidden');
+      });
+
+      tabReg.addEventListener('click', () => {
+        tabReg.className = 'flex-1 py-2 px-4 rounded-lg text-sm font-semibold bg-white text-indigo-700 shadow-xs transition';
+        tabLogin.className = 'flex-1 py-2 px-4 rounded-lg text-sm font-semibold text-slate-600 hover:text-slate-900 transition';
+        regForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+        generateStudentCodeSuggestion();
+      });
+
+      function generateStudentCodeSuggestion() {
+        const cls = (document.getElementById('regStudentClass').value || '12A').toUpperCase().replace(/[^A-Z0-9]/g, '') || '12A';
+        const randNum = Math.floor(1000 + Math.random() * 9000);
+        document.getElementById('regStudentCode').value = `${cls}-${randNum}`;
+      }
+
+      document.getElementById('btnGenCode').addEventListener('click', generateStudentCodeSuggestion);
+      document.getElementById('regStudentClass').addEventListener('change', generateStudentCodeSuggestion);
+
+      // Existing student login
+      loginForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const nameInput = document.getElementById('loginStudentName').value.trim();
+        const codeInput = document.getElementById('loginStudentCode').value.trim().toUpperCase();
+
+        const found = appState.students.find(
+          s => s.name.toLowerCase() === nameInput.toLowerCase() && s.code.toUpperCase() === codeInput
+        );
+
+        if (!found) {
+          showToast('Нэр эсвэл код буруу байна. Дахин шалгана уу эсвэл шинээр бүртгүүлнэ үү.', 'error');
+          return;
+        }
+
+        appState.session = { role: 'student', id: found.id, name: found.name };
+        saveState();
+        showToast(`Тавтай морил, ${found.name}!`, 'success');
+        renderApp();
+      });
+
+      // New student registration
+      regForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const name = document.getElementById('regStudentName').value.trim();
+        const className = document.getElementById('regStudentClass').value;
+        const code = document.getElementById('regStudentCode').value.trim().toUpperCase();
+
+        if (!name || !code) {
+          showToast('Нэр болон кодоо бүрэн оруулна уу.', 'error');
+          return;
+        }
+
+        const codeTaken = appState.students.some(s => s.code.toUpperCase() === code);
+        if (codeTaken) {
+          showToast('Энэ код бүртгэлтэй байна. Шинэ код үүсгэнэ үү.', 'error');
+          return;
+        }
+
+        const newStudent = {
+          id: 'st-' + Date.now(),
+          name,
+          code,
+          className,
+          memorizedWordIds: [],
+          points: 0,
+          quizAttempts: 0,
+          quizCorrect: 0
+        };
+
+        appState.students.push(newStudent);
+        appState.session = { role: 'student', id: newStudent.id, name: newStudent.name };
+        saveState();
+
+        document.getElementById('createdCodeBanner').classList.remove('hidden');
+        document.getElementById('createdNameDisplay').textContent = name;
+        document.getElementById('createdCodeDisplay').textContent = code;
+
+        showToast(`Бүртгэл амжилттай! Таны код: ${code}`, 'success');
+        setTimeout(() => {
+          document.getElementById('createdCodeBanner').classList.add('hidden');
+          renderApp();
+        }, 700);
+      });
+
+      // Teacher login
+      document.getElementById('teacherLoginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const tName = document.getElementById('teacherNameInput').value.trim() || 'Багш';
+        const code = document.getElementById('teacherPasscodeInput').value.trim();
+        if (code !== TEACHER_PASSCODE) {
+          showToast('Багшийн нэвтрэх код буруу байна (TEACHER2026).', 'error');
+          return;
+        }
+        appState.session = { role: 'teacher', name: tName };
+        saveState();
+        showToast(`${tName} нэвтэрлээ.`, 'success');
+        renderApp();
+      });
+
+      // Reset demo state
+      document.getElementById('btnResetDemo').addEventListener('click', () => {
+        stopGameTimer();
+        appState = structuredClone(DEFAULT_STATE);
+        saveState();
+        showToast('Жишээ өгөгдөл сэргээгдлээ.', 'info');
+        renderApp();
+      });
+
+      // Logout
+      document.getElementById('btnLogout').addEventListener('click', () => {
+        stopGameTimer();
+        appState.session = null;
+        studentActiveFolderId = null;
+        saveState();
+        renderApp();
+      });
+    }
+
+    // ==================== MAIN VIEW RENDERER ====================
+
+    function renderApp() {
+      const header = document.getElementById('appHeader');
+      const authView = document.getElementById('authView');
+      const teacherView = document.getElementById('teacherView');
+      const studentView = document.getElementById('studentView');
+      const roleBadge = document.getElementById('headerRoleBadge');
+      const userStats = document.getElementById('headerUserStats');
+
+      if (!appState.session) {
+        header.classList.add('hidden');
+        authView.classList.remove('hidden');
+        teacherView.classList.add('hidden');
+        studentView.classList.add('hidden');
+        return;
+      }
+
+      header.classList.remove('hidden');
+      authView.classList.add('hidden');
+
+      if (appState.session.role === 'teacher') {
+        teacherView.classList.remove('hidden');
+        studentView.classList.add('hidden');
+        roleBadge.textContent = `Багшийн цэс • ${appState.session.name}`;
+        userStats.innerHTML = `
+          <span class="text-indigo-700 font-bold">Нийт үг: ${appState.words.length}</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-teal-700 font-bold">Хавтас: ${appState.folders.length}</span>
+        `;
+        renderTeacherDashboard();
+      } else {
+        const st = getCurrentStudent();
+        if (!st) {
+          appState.session = null;
+          saveState();
+          renderApp();
+          return;
+        }
+        teacherView.classList.add('hidden');
+        studentView.classList.remove('hidden');
+        const m = calculateStudentMetrics(st);
+        roleBadge.textContent = `Сурагч: ${st.name} (${st.code})`;
+        userStats.innerHTML = `
+          <span class="text-indigo-700 font-bold">Цээжилсэн: ${m.memorizedCount}/${m.totalWords}</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-teal-700 font-bold">Оноо: ${m.points}</span>
+        `;
+        renderStudentDashboard(st);
+      }
+    }
+
+    // ==================== TEACHER DASHBOARD ====================
+
+    function initTeacherEvents() {
+      // Sub-tab switching
+      document.querySelectorAll('.teacher-tab').forEach(btn => {
+        btn.addEventListener('click', () => {
+          teacherActiveTab = btn.dataset.ttab;
+          document.querySelectorAll('.teacher-tab').forEach(b => {
+            if (b.dataset.ttab === teacherActiveTab) {
+              b.className = 'teacher-tab vivid-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold bg-gradient-to-r from-teal-500 via-emerald-500 to-cyan-600 text-white shadow-sm transition';
+            } else {
+              b.className = 'teacher-tab vivid-btn px-4 py-2.5 rounded-xl text-xs sm:text-sm font-bold text-indigo-900 hover:bg-indigo-50 transition';
+            }
+          });
+          document.querySelectorAll('.teacher-panel').forEach(panel => {
+            panel.classList.toggle('hidden', panel.id !== `teacherTab-${teacherActiveTab}`);
+          });
+          renderTeacherDashboard();
+        });
+      });
+
+      // Year selector in Material Upload
+      const yearSelect = document.getElementById('materialYearSelect');
+      yearSelect.addEventListener('change', () => {
+        const folder = ensureFolderForYear(yearSelect.value);
+        if (folder) {
+          saveState();
+          teacherSelectedFolderId = folder.id;
+          updateMaterialYearUI();
+        }
+      });
+
+      // File upload to canvas
+      document.getElementById('materialImageInput').addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          const img = new Image();
+          img.onload = () => {
+            canvasImg = img;
+            selectionBoxes = [];
+            document.getElementById('quickDetectedWordsBox').classList.add('hidden');
+            drawMaterialCanvas();
+            showToast('Зураг ачааллагдлаа. Доор зурсан үгийг хүрээлж сонгоно уу.', 'success');
+          };
+          img.src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      });
+
+      // Load built-in sample exam image with underlined words
+      document.getElementById('btnLoadSampleExam').addEventListener('click', () => {
+        loadSampleExamSheet();
+        showToast('2020 оны жишээ ЭЕШ хуудас ачааллагдлаа.', 'info');
+      });
+
+      document.getElementById('btnClearBoxes').addEventListener('click', () => {
+        selectionBoxes = [];
+        currentBox = null;
+        drawMaterialCanvas();
+      });
+
+      // Canvas pointer/touch drawing for selecting underlined words
+      const canvas = document.getElementById('materialCanvas');
+
+      function getCanvasCoords(evt) {
+        const rect = canvas.getBoundingClientRect();
+        const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+        const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+        const scaleX = canvas.width / (rect.width || 1);
+        const scaleY = canvas.height / (rect.height || 1);
+        return {
+          x: (clientX - rect.left) * scaleX,
+          y: (clientY - rect.top) * scaleY
+        };
+      }
+
+      canvas.addEventListener('mousedown', (e) => {
+        if (!canvasImg) return;
+        isDrawingBox = true;
+        drawStart = getCanvasCoords(e);
+        currentBox = { x: drawStart.x, y: drawStart.y, w: 0, h: 0 };
+      });
+
+      canvas.addEventListener('mousemove', (e) => {
+        if (!isDrawingBox || !currentBox) return;
+        const pt = getCanvasCoords(e);
+        currentBox = {
+          x: Math.min(drawStart.x, pt.x),
+          y: Math.min(drawStart.y, pt.y),
+          w: Math.abs(pt.x - drawStart.x),
+          h: Math.abs(pt.y - drawStart.y)
+        };
+        drawMaterialCanvas();
+      });
+
+      window.addEventListener('mouseup', () => {
+        if (!isDrawingBox) return;
+        isDrawingBox = false;
+        if (currentBox && currentBox.w > 12 && currentBox.h > 8) {
+          selectionBoxes.push(currentBox);
+          document.getElementById('extractedWordEn').focus();
+          showToast('Хэсэг сонгогдлоо. Доор зурсан англи үг, утгыг оруулж нэмнэ үү.', 'info');
+        }
+        currentBox = null;
+        drawMaterialCanvas();
+      });
+
+      // Touch support on canvas
+      canvas.addEventListener('touchstart', (e) => {
+        if (!canvasImg) return;
+        e.preventDefault();
+        isDrawingBox = true;
+        drawStart = getCanvasCoords(e);
+        currentBox = { x: drawStart.x, y: drawStart.y, w: 0, h: 0 };
+      }, { passive: false });
+
+      canvas.addEventListener('touchmove', (e) => {
+        if (!isDrawingBox || !currentBox) return;
+        e.preventDefault();
+        const pt = getCanvasCoords(e);
+        currentBox = {
+          x: Math.min(drawStart.x, pt.x),
+          y: Math.min(drawStart.y, pt.y),
+          w: Math.abs(pt.x - drawStart.x),
+          h: Math.abs(pt.y - drawStart.y)
+        };
+        drawMaterialCanvas();
+      }, { passive: false });
+
+      canvas.addEventListener('touchend', () => {
+        if (!isDrawingBox) return;
+        isDrawingBox = false;
+        if (currentBox && currentBox.w > 12 && currentBox.h > 8) {
+          selectionBoxes.push(currentBox);
+          document.getElementById('extractedWordEn').focus();
+        }
+        currentBox = null;
+        drawMaterialCanvas();
+      });
+
+      // Submit word extracted from image
+      document.getElementById('addExtractedWordForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const yearVal = document.getElementById('materialYearSelect').value;
+        const folder = ensureFolderForYear(yearVal);
+        if (!folder) return;
+
+        const en = document.getElementById('extractedWordEn').value.trim();
+        const pos = document.getElementById('extractedWordPos').value;
+        const mn = document.getElementById('extractedWordMn').value.trim();
+        const ex = document.getElementById('extractedWordEx').value.trim() || `The exam passage highlighted the word "${en}".`;
+        const exMn = document.getElementById('extractedWordExMn').value.trim() || `${folder.year} оны ЭЕШ-ийн материалаас авсан "${mn}" утгатай үг.`;
+
+        if (!en || !mn) {
+          showToast('Англи үг болон монгол утгыг заавал оруулна уу.', 'error');
+          return;
+        }
+
+        appState.words.push({
+          id: 'w-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          folderId: folder.id,
+          en,
+          pos,
+          mn,
+          ex,
+          exMn
+        });
+
+        saveState();
+        teacherSelectedFolderId = folder.id;
+
+        document.getElementById('extractedWordEn').value = '';
+        document.getElementById('extractedWordMn').value = '';
+        document.getElementById('extractedWordEx').value = '';
+        document.getElementById('extractedWordExMn').value = '';
+
+        showToast(`"${en}" үг "${folder.title}" хавтаст нэмэгдлээ!`, 'success');
+        renderTeacherDashboard();
+      });
+
+      // Create new year folder
+      document.getElementById('createFolderForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const yr = document.getElementById('newFolderYearInput').value.trim();
+        const folder = ensureFolderForYear(yr);
+        if (!folder) {
+          showToast('Зөв шалгалтын он оруулна уу (жнь: 2022).', 'error');
+          return;
+        }
+        teacherSelectedFolderId = folder.id;
+        saveState();
+        document.getElementById('newFolderYearInput').value = '';
+        showToast(`"${folder.title}" хавтас бэлэн боллоо.`, 'success');
+        renderTeacherDashboard();
+      });
+
+      // Direct word addition inside a folder
+      document.getElementById('directAddWordForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const folderId = document.getElementById('directWordFolderSelect').value;
+        const en = document.getElementById('directWordEn').value.trim();
+        const mn = document.getElementById('directWordMn').value.trim();
+        const pos = document.getElementById('directWordPos').value;
+        const ex = document.getElementById('directWordEx').value.trim() || `Practice using "${en}" in context.`;
+        const exMn = document.getElementById('directWordExMn').value.trim() || `"${mn}" утгатай жишээ өгүүлбэр.`;
+
+        if (!folderId || !en || !mn) return;
+
+        appState.words.push({
+          id: 'w-' + Date.now() + '-' + Math.floor(Math.random() * 1000),
+          folderId,
+          en,
+          pos,
+          mn,
+          ex,
+          exMn
+        });
+
+        teacherSelectedFolderId = folderId;
+        saveState();
+
+        document.getElementById('directWordEn').value = '';
+        document.getElementById('directWordMn').value = '';
+        document.getElementById('directWordEx').value = '';
+        document.getElementById('directWordExMn').value = '';
+
+        showToast(`"${en}" үг шинэ үгийн санд нэмэгдлээ.`, 'success');
+        renderTeacherDashboard();
+      });
+
+      // Leaderboard class filter
+      document.getElementById('leaderboardClassFilter').addEventListener('change', () => {
+        renderTeacherLeaderboard();
+      });
+    }
+
+    function loadSampleExamSheet() {
+      const year = document.getElementById('materialYearSelect').value || '2020';
+      const offCanvas = document.createElement('canvas');
+      offCanvas.width = 720;
+      offCanvas.height = 420;
+      const ctx = offCanvas.getContext('2d');
+
+      // Paper background
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, offCanvas.width, offCanvas.height);
+
+      // Header bar
+      ctx.fillStyle = '#1e293b';
+      ctx.fillRect(0, 0, offCanvas.width, 52);
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px Inter, sans-serif';
+      ctx.fillText(`ЭЕШ АНГЛИ ХЭЛ — ${year} ОНЫ ДААЛГАВРЫН ХУУДАС (ЖИШЭЭ)`, 24, 32);
+
+      // Passage text with underlined vocabulary words
+      ctx.fillStyle = '#0f172a';
+      ctx.font = '16px Inter, sans-serif';
+      const lines = [
+        'Reading Passage: Many young people decide not to abandon their dreams',
+        'even when facing difficulties. To give an accurate analysis of global',
+        'trends, researchers examine how daily habits contribute to long-term',
+        'success in university studies and future careers.'
+      ];
+      lines.forEach((line, idx) => {
+        ctx.fillText(line, 32, 105 + idx * 38);
+      });
+
+      // Draw red/indigo underlines under sample target words
+      ctx.strokeStyle = '#e11d48';
+      ctx.lineWidth = 3;
+
+      // Underline 1: abandon (line 1)
+      ctx.beginPath();
+      ctx.moveTo(396, 110);
+      ctx.lineTo(462, 110);
+      ctx.stroke();
+
+      // Underline 2: accurate (line 2)
+      ctx.beginPath();
+      ctx.moveTo(227, 148);
+      ctx.lineTo(290, 148);
+      ctx.stroke();
+
+      // Underline 3: contribute (line 3)
+      ctx.beginPath();
+      ctx.moveTo(319, 186);
+      ctx.lineTo(398, 186);
+      ctx.stroke();
+
+      // Note box at bottom
+      ctx.fillStyle = '#f1f5f9';
+      ctx.fillRect(32, 265, 656, 115);
+      ctx.strokeStyle = '#cbd5e1';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(32, 265, 656, 115);
+      ctx.fillStyle = '#334155';
+      ctx.font = '13px Inter, sans-serif';
+      ctx.fillText('Багшийн тэмдэглэл: Улаан зураасаар доогуур нь зурсан үгс (abandon, accurate, contribute)', 48, 295);
+      ctx.fillText('нь тухайн оны ЭЕШ-ийн шинэ үгийн санд орно. Доорх товчнуудаас сонгох эсвэл', 48, 320);
+      ctx.fillText('зураг дээр өөрөө хүрээлж шинэ үг нэмнэ үү.', 48, 345);
+
+      const img = new Image();
+      img.onload = () => {
+        canvasImg = img;
+        selectionBoxes = [
+          { x: 392, y: 86, w: 74, h: 28 },
+          { x: 223, y: 124, w: 72, h: 28 },
+          { x: 315, y: 162, w: 88, h: 28 }
+        ];
+        renderQuickDetectedChips();
+        drawMaterialCanvas();
+      };
+      img.src = offCanvas.toDataURL();
+    }
+
+    function renderQuickDetectedChips() {
+      const box = document.getElementById('quickDetectedWordsBox');
+      const chips = document.getElementById('quickDetectedChips');
+      box.classList.remove('hidden');
+      chips.innerHTML = '';
+
+      SAMPLE_UNDERLINED_WORDS.forEach(item => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'px-3 py-1.5 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 border border-rose-200 text-xs font-bold transition';
+        btn.textContent = `${item.en} (${item.mn})`;
+        btn.addEventListener('click', () => {
+          document.getElementById('extractedWordEn').value = item.en;
+          document.getElementById('extractedWordPos').value = item.pos;
+          document.getElementById('extractedWordMn').value = item.mn;
+          document.getElementById('extractedWordEx').value = item.ex;
+          document.getElementById('extractedWordExMn').value = item.exMn;
+          showToast(`"${item.en}" үг талбаруудад бэлтгэгдлээ.`, 'info');
+        });
+        chips.appendChild(btn);
+      });
+    }
+
+    function drawMaterialCanvas() {
+      const canvas = document.getElementById('materialCanvas');
+      const emptyHint = document.getElementById('canvasEmptyHint');
+      const ctx = canvas.getContext('2d');
+
+      if (!canvasImg) {
+        canvas.width = 0;
+        canvas.height = 0;
+        emptyHint.classList.remove('hidden');
+        return;
+      }
+
+      emptyHint.classList.add('hidden');
+      canvas.width = canvasImg.width;
+      canvas.height = canvasImg.height;
+      ctx.drawImage(canvasImg, 0, 0);
+
+      // Draw saved selection boxes
+      selectionBoxes.forEach((b, idx) => {
+        ctx.strokeStyle = '#0d9488';
+        ctx.lineWidth = 2.5;
+        ctx.fillStyle = 'rgba(13, 148, 136, 0.14)';
+        ctx.fillRect(b.x, b.y, b.w, b.h);
+        ctx.strokeRect(b.x, b.y, b.w, b.h);
+
+        ctx.fillStyle = '#0f766e';
+        ctx.font = 'bold 11px Inter, sans-serif';
+        ctx.fillText(`#${idx + 1}`, b.x + 3, Math.max(12, b.y - 4));
+      });
+
+      // Draw active drag box
+      if (currentBox) {
+        ctx.strokeStyle = '#4f46e5';
+        ctx.lineWidth = 2;
+        ctx.setLineDash([5, 3]);
+        ctx.strokeRect(currentBox.x, currentBox.y, currentBox.w, currentBox.h);
+        ctx.setLineDash([]);
+      }
+    }
+
+    function updateMaterialYearUI() {
+      const yearVal = document.getElementById('materialYearSelect').value;
+      const folderTitle = `${yearVal} оны шинэ үгс`;
+      document.getElementById('materialFolderBadge').textContent = `Хавтас: ${folderTitle}`;
+      document.getElementById('targetFolderLabel').textContent = folderTitle;
+
+      const folderWords = appState.words.filter(w => String(w.folderId) === String(yearVal));
+      document.getElementById('currentYearWordCountBadge').textContent = `${folderWords.length} үг`;
+
+      const listEl = document.getElementById('recentYearWordsList');
+      if (folderWords.length === 0) {
+        listEl.innerHTML = `<div class="text-slate-400 italic">Энэ хавтаст одоогоор үг нэмэгдээгүй байна.</div>`;
+      } else {
+        listEl.innerHTML = folderWords.slice().reverse().map(w => `
+          <div class="flex items-center justify-between bg-white px-3 py-1.5 rounded-lg border border-slate-200">
+            <div>
+              <span class="font-bold text-slate-900">${escapeHtml(w.en)}</span>
+              <span class="text-slate-400 text-[11px] ml-1">${escapeHtml(w.pos)}</span>
+            </div>
+            <span class="text-teal-700 font-medium">${escapeHtml(w.mn)}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function renderTeacherDashboard() {
+      // KPIs
+      document.getElementById('kpiTotalWords').textContent = appState.words.length;
+      document.getElementById('kpiTotalFolders').textContent = appState.folders.length;
+      document.getElementById('kpiTotalStudents').textContent = appState.students.length;
+
+      const avgProg = appState.students.length > 0
+        ? Math.round(appState.students.reduce((acc, s) => acc + calculateStudentMetrics(s).progressPct, 0) / appState.students.length)
+        : 0;
+      document.getElementById('kpiAvgProgress').textContent = `${avgProg}%`;
+
+      // Update header quick stats
+      const headerStats = document.getElementById('headerUserStats');
+      if (headerStats) {
+        headerStats.innerHTML = `
+          <span class="text-indigo-700 font-bold">Нийт үг: ${appState.words.length}</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-teal-700 font-bold">Хавтас: ${appState.folders.length}</span>
+        `;
+      }
+
+      updateMaterialYearUI();
+      renderTeacherFoldersAndWords();
+      renderTeacherLeaderboard();
+    }
+
+    function renderTeacherFoldersAndWords() {
+      const folderSelect = document.getElementById('directWordFolderSelect');
+      folderSelect.innerHTML = appState.folders.map(f =>
+        `<option value="${f.id}" ${String(f.id) === String(teacherSelectedFolderId) ? 'selected' : ''}>${escapeHtml(f.title)}</option>`
+      ).join('');
+
+      if (!appState.folders.some(f => String(f.id) === String(teacherSelectedFolderId)) && appState.folders.length > 0) {
+        teacherSelectedFolderId = appState.folders[0].id;
+      }
+
+      document.getElementById('teacherFolderCountText').textContent = `Нийт ${appState.folders.length} хавтас`;
+
+      const foldersGrid = document.getElementById('teacherFoldersGrid');
+      foldersGrid.innerHTML = appState.folders.map(f => {
+        const count = appState.words.filter(w => String(w.folderId) === String(f.id)).length;
+        const active = String(f.id) === String(teacherSelectedFolderId);
+        const theme = getFolderTheme(f.year);
+        return `
+          <button
+            type="button"
+            data-tfolder="${f.id}"
+            class="t-folder-card vivid-btn p-4 rounded-2xl border-2 bg-gradient-to-br ${theme.cardBg} text-left transition ${
+              active ? 'ring-4 ring-amber-300 shadow-lg scale-[1.01]' : 'opacity-90 hover:opacity-100 shadow-sm'
+            }"
+          >
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-extrabold">${escapeHtml(f.title)}</span>
+              <span class="px-2.5 py-0.5 rounded-full text-xs font-extrabold ${theme.pill}">${count} үг</span>
+            </div>
+            <div class="text-xs ${theme.sub} mt-1 font-medium">ЭЕШ ${f.year} оны сан</div>
+          </button>
+        `;
+      }).join('');
+
+      foldersGrid.querySelectorAll('.t-folder-card').forEach(card => {
+        card.addEventListener('click', () => {
+          teacherSelectedFolderId = card.dataset.tfolder;
+          renderTeacherFoldersAndWords();
+        });
+      });
+
+      const activeFolder = appState.folders.find(f => String(f.id) === String(teacherSelectedFolderId));
+      const folderWords = appState.words.filter(w => String(w.folderId) === String(teacherSelectedFolderId));
+
+      document.getElementById('selectedFolderWordsTitle').textContent =
+        activeFolder ? `${activeFolder.title} — Үгсийн жагсаалт` : 'Үгсийн жагсаалт';
+      document.getElementById('selectedFolderWordsCount').textContent = `${folderWords.length} үг`;
+
+      const listEl = document.getElementById('teacherSelectedWordsList');
+      if (folderWords.length === 0) {
+        listEl.innerHTML = `<div class="text-sm text-slate-400 py-6 text-center">Энэ хавтаст үг алга байна. Зүүн талын маягтаар үг нэмнэ үү.</div>`;
+      } else {
+        listEl.innerHTML = folderWords.map(w => `
+          <div class="flex items-start justify-between gap-3 p-3 rounded-xl border border-slate-200 bg-slate-50/70">
+            <div>
+              <div class="flex items-center gap-2">
+                <span class="font-bold text-slate-900 text-sm">${escapeHtml(w.en)}</span>
+                <span class="text-xs text-slate-500 italic">${escapeHtml(w.pos)}</span>
+                <span class="text-xs font-semibold text-teal-700">— ${escapeHtml(w.mn)}</span>
+              </div>
+              <p class="text-xs text-slate-600 mt-1">${escapeHtml(w.ex)}</p>
+            </div>
+            <button
+              type="button"
+              data-delword="${w.id}"
+              class="btn-del-word px-2.5 py-1 rounded-lg text-xs font-semibold text-rose-600 hover:bg-rose-50 border border-rose-200 shrink-0"
+            >
+              Устгах
+            </button>
+          </div>
+        `).join('');
+
+        listEl.querySelectorAll('.btn-del-word').forEach(btn => {
+          btn.addEventListener('click', () => {
+            const wid = btn.dataset.delword;
+            appState.words = appState.words.filter(w => w.id !== wid);
+            saveState();
+            showToast('Үг устгагдлаа.', 'info');
+            renderTeacherDashboard();
+          });
+        });
+      }
+    }
+
+    function renderTeacherLeaderboard() {
+      const clsFilter = document.getElementById('leaderboardClassFilter').value;
+      const filtered = appState.students
+        .filter(s => clsFilter === 'ALL' || s.className === clsFilter)
+        .map(s => ({ student: s, metrics: calculateStudentMetrics(s) }))
+        .sort((a, b) => {
+          if (b.metrics.points !== a.metrics.points) return b.metrics.points - a.metrics.points;
+          return b.metrics.memorizedCount - a.metrics.memorizedCount;
+        });
+
+      // Podium top 3
+      const podiumEl = document.getElementById('topThreePodium');
+      const medals = ['1-р байр • Алт', '2-р байр • Мөнгө', '3-р байр • Хүрэл'];
+      const medalStyles = [
+        'border-amber-300 bg-gradient-to-br from-amber-300 via-yellow-400 to-orange-400 text-amber-950 shadow-md',
+        'border-slate-300 bg-gradient-to-br from-slate-200 via-sky-100 to-indigo-200 text-slate-900 shadow-sm',
+        'border-orange-300 bg-gradient-to-br from-orange-300 via-rose-200 to-amber-200 text-orange-950 shadow-sm'
+      ];
+
+      if (filtered.length === 0) {
+        podiumEl.innerHTML = '';
+      } else {
+        podiumEl.innerHTML = filtered.slice(0, 3).map((item, idx) => `
+          <div class="p-4 rounded-2xl border-2 ${medalStyles[idx] || 'border-indigo-200 bg-gradient-to-br from-indigo-50 to-fuchsia-50 text-slate-900'}">
+            <div class="text-xs font-extrabold uppercase tracking-wide">${medals[idx] || `${idx + 1}-р байр`}</div>
+            <div class="text-base font-extrabold mt-1">${escapeHtml(item.student.name)}</div>
+            <div class="text-xs opacity-80 font-mono font-semibold">${escapeHtml(item.student.code)} • ${escapeHtml(item.student.className)} анги</div>
+            <div class="mt-3 flex items-center justify-between text-xs font-extrabold">
+              <span class="px-2.5 py-0.5 rounded-full bg-white/75 text-indigo-900">${item.metrics.memorizedCount}/${item.metrics.totalWords} үг</span>
+              <span class="text-sm px-2.5 py-0.5 rounded-full bg-white/85 text-emerald-800">${item.metrics.points} оноо</span>
+            </div>
+          </div>
+        `).join('');
+      }
+
+      // Full table
+      const tbody = document.getElementById('leaderboardTableBody');
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8" class="py-6 text-center text-slate-400">Одоогоор бүртгэлтэй сурагч алга байна.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map((item, idx) => {
+        const rank = idx + 1;
+        const rankBadge = rank === 1
+          ? 'bg-amber-100 text-amber-800 border-amber-300'
+          : rank === 2
+          ? 'bg-slate-200 text-slate-800 border-slate-300'
+          : rank === 3
+          ? 'bg-orange-100 text-orange-800 border-orange-300'
+          : 'bg-slate-100 text-slate-600 border-slate-200';
+
+        return `
+          <tr class="hover:bg-slate-50/80 transition">
+            <td class="py-3.5 px-4">
+              <span class="inline-flex items-center justify-center px-2.5 py-0.5 rounded-full text-xs font-extrabold border ${rankBadge}">
+                #${rank}
+              </span>
+            </td>
+            <td class="py-3.5 px-4">
+              <div class="font-bold text-slate-900">${escapeHtml(item.student.name)}</div>
+              <div class="text-xs font-mono text-slate-500">${escapeHtml(item.student.code)}</div>
+            </td>
+            <td class="py-3.5 px-4 text-xs font-semibold text-slate-700">${escapeHtml(item.student.className)}</td>
+            <td class="py-3.5 px-4 font-bold text-indigo-700">${item.metrics.memorizedCount} / ${item.metrics.totalWords}</td>
+            <td class="py-3.5 px-4 text-xs font-semibold text-emerald-700">${item.metrics.accuracyPct}% (${item.student.quizCorrect}/${item.student.quizAttempts})</td>
+            <td class="py-3.5 px-4 w-40">
+              <div class="flex items-center gap-2">
+                <div class="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
+                  <div class="h-full bg-teal-500 rounded-full" style="width: ${item.metrics.progressPct}%"></div>
+                </div>
+                <span class="text-xs font-bold text-slate-700 w-9 text-right">${item.metrics.progressPct}%</span>
+              </div>
+            </td>
+            <td class="py-3.5 px-4 text-right font-extrabold text-slate-900">${item.metrics.points}</td>
+            <td class="py-3.5 px-4 text-right">
+              <button
+                type="button"
+                data-delstudent="${escapeAttr(item.student.id)}"
+                class="btn-del-student px-2.5 py-1 rounded-lg text-xs font-bold text-rose-600 hover:bg-rose-50 border border-rose-200 transition"
+              >
+                Устгах
+              </button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      tbody.querySelectorAll('.btn-del-student').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sid = btn.dataset.delstudent;
+          const target = appState.students.find(s => s.id === sid);
+          appState.students = appState.students.filter(s => s.id !== sid);
+          if (appState.session && appState.session.role === 'student' && appState.session.id === sid) {
+            appState.session = null;
+          }
+          saveState();
+          showToast(target ? `"${target.name}" сурагч устгагдлаа.` : 'Сурагч устгагдлаа.', 'info');
+          renderTeacherDashboard();
+        });
+      });
+    }
+
+    // ==================== STUDENT DASHBOARD & LEARNING ====================
+
+    function initStudentEvents() {
+      document.getElementById('btnBackToFolders').addEventListener('click', () => {
+        stopGameTimer();
+        studentActiveFolderId = null;
+        renderApp();
+      });
+
+      document.querySelectorAll('.student-mode-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          stopGameTimer();
+          studentLearningMode = btn.dataset.smode;
+          updateStudentModeButtons();
+          renderStudentLearningMode();
+        });
+      });
+    }
+
+    function updateStudentModeButtons() {
+      document.querySelectorAll('.student-mode-btn').forEach(btn => {
+        if (btn.dataset.smode === studentLearningMode) {
+          btn.className = 'student-mode-btn vivid-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-500 text-white shadow-xs transition';
+        } else {
+          btn.className = 'student-mode-btn vivid-btn px-3.5 py-2 rounded-lg text-xs sm:text-sm font-bold text-indigo-950 hover:bg-white/80 transition';
+        }
+      });
+
+      document.querySelectorAll('.student-mode-panel').forEach(panel => {
+        panel.classList.toggle('hidden', panel.id !== `studentMode-${studentLearningMode}`);
+      });
+    }
+
+    function renderStudentDashboard(student) {
+      const m = calculateStudentMetrics(student);
+
+      document.getElementById('studentWelcomeName').textContent = `Сайн байна уу, ${student.name}!`;
+      document.getElementById('studentCodeBadge').textContent = `Код: ${student.code}`;
+      document.getElementById('studentClassBadge').textContent = `${student.className} анги`;
+
+      document.getElementById('studentMemorizedCount').textContent = `${m.memorizedCount}/${m.totalWords}`;
+      document.getElementById('studentPointsVal').textContent = m.points;
+      document.getElementById('studentAccuracyVal').textContent = `${m.accuracyPct}%`;
+      document.getElementById('studentProgressPercent').textContent = `${m.progressPct}%`;
+      document.getElementById('studentProgressBar').style.width = `${m.progressPct}%`;
+
+      const headerStats = document.getElementById('headerUserStats');
+      if (headerStats) {
+        headerStats.innerHTML = `
+          <span class="text-indigo-700 font-bold">Цээжилсэн: ${m.memorizedCount}/${m.totalWords}</span>
+          <span class="text-slate-300">|</span>
+          <span class="text-teal-700 font-bold">Оноо: ${m.points}</span>
+        `;
+      }
+
+      const foldersScreen = document.getElementById('studentFoldersScreen');
+      const workspace = document.getElementById('studentFolderWorkspace');
+
+      if (!studentActiveFolderId) {
+        foldersScreen.classList.remove('hidden');
+        workspace.classList.add('hidden');
+        renderStudentFoldersGrid(student);
+      } else {
+        foldersScreen.classList.add('hidden');
+        workspace.classList.remove('hidden');
+        const activeFolder = appState.folders.find(f => String(f.id) === String(studentActiveFolderId));
+        const fWords = appState.words.filter(w => String(w.folderId) === String(studentActiveFolderId));
+        document.getElementById('activeFolderTitle').textContent = activeFolder ? activeFolder.title : 'Хавтас';
+        document.getElementById('activeFolderSub').textContent = `${fWords.length} шинэ үг • Флаш карт, дасгал, тоглоом`;
+        updateStudentModeButtons();
+        renderStudentLearningMode();
+      }
+    }
+
+    function renderStudentFoldersGrid(student) {
+      const grid = document.getElementById('studentFoldersGrid');
+      const summary = document.getElementById('studentFoldersSummary');
+      const totalWordsCount = appState.words.length;
+      const totalMemCount = student.memorizedWordIds.filter(wid => appState.words.some(w => w.id === wid)).length;
+      summary.textContent = `Нийт ${appState.folders.length} хавтас • ${totalMemCount}/${totalWordsCount} үг цээжилсэн`;
+
+      if (appState.folders.length === 0) {
+        grid.innerHTML = `<div class="col-span-full bg-white rounded-2xl border border-slate-200 p-8 text-center text-sm text-slate-500">Одоогоор хавтас үүсээгүй байна.</div>`;
+        return;
+      }
+
+      grid.innerHTML = appState.folders.map(f => {
+        const fWords = appState.words.filter(w => String(w.folderId) === String(f.id));
+        const memCount = fWords.filter(w => student.memorizedWordIds.includes(w.id)).length;
+        const pct = fWords.length > 0 ? Math.round((memCount / fWords.length) * 100) : 0;
+        const theme = getFolderTheme(f.year);
+
+        return `
+          <div
+            data-sfolder="${f.id}"
+            class="s-folder-card vivid-btn bg-gradient-to-br ${theme.cardBg} rounded-3xl border-2 p-5 shadow-md hover:shadow-xl transition cursor-pointer flex flex-col justify-between"
+          >
+            <div>
+              <div class="flex items-center justify-between gap-2 mb-2">
+                <span class="px-3 py-1 rounded-full ${theme.pill} text-xs font-extrabold backdrop-blur-xs">${f.year} он</span>
+                <span class="text-xs font-extrabold px-2.5 py-0.5 rounded-full ${theme.pill}">${fWords.length} шинэ үг</span>
+              </div>
+              <h3 class="text-base sm:text-lg font-extrabold">${escapeHtml(f.title)}</h3>
+              <p class="text-xs ${theme.sub} mt-1 font-medium">Флаш карт, дасгал, тоглоомоор цээжлэх</p>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-white/25">
+              <div class="flex items-center justify-between text-xs font-extrabold mb-1.5">
+                <span>Цээжилсэн: ${memCount}/${fWords.length}</span>
+                <span>${pct}%</span>
+              </div>
+              <div class="w-full h-2.5 ${theme.track} rounded-full overflow-hidden">
+                <div class="h-full ${theme.fill} rounded-full" style="width: ${pct}%"></div>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+
+      grid.querySelectorAll('.s-folder-card').forEach(card => {
+        card.addEventListener('click', () => {
+          studentActiveFolderId = card.dataset.sfolder;
+          studentLearningMode = 'flashcards';
+          flashcardIndex = 0;
+          flashcardFlipped = false;
+          setupExercisesForFolder();
+          renderApp();
+        });
+      });
+    }
+
+    function renderStudentLearningMode() {
+      if (studentLearningMode === 'flashcards') {
+        renderFlashcards();
+      } else if (studentLearningMode === 'exercise') {
+        if (exerciseQuestions.length === 0) setupExercisesForFolder();
+        renderExerciseQuestion();
+      } else if (studentLearningMode === 'game') {
+        renderGameLobbyOrPlay();
+      }
+    }
+
+    // --- FLASHCARDS ---
+    function renderFlashcards() {
+      const container = document.getElementById('flashcardContainer');
+      const words = appState.words.filter(w => String(w.folderId) === String(studentActiveFolderId));
+      const student = getCurrentStudent();
+
+      if (words.length === 0) {
+        container.innerHTML = `<div class="bg-white rounded-2xl border border-slate-200 p-8 text-center text-sm text-slate-500">Энэ хавтаст одоогоор үг алга байна.</div>`;
+        return;
+      }
+
+      if (flashcardIndex >= words.length) flashcardIndex = 0;
+      const word = words[flashcardIndex];
+      const isMem = student && student.memorizedWordIds.includes(word.id);
+
+      container.innerHTML = `
+        <div class="flex items-center justify-between text-xs font-bold mb-3">
+          <span class="px-3 py-1 rounded-full bg-indigo-100 text-indigo-800">Карт ${flashcardIndex + 1} / ${words.length}</span>
+          <span class="px-3 py-1 rounded-full ${isMem ? 'bg-emerald-100 text-emerald-800 font-extrabold' : 'bg-amber-100 text-amber-800'}">
+            ${isMem ? '✓ Цээжилсэн үг' : 'Цээжлээгүй'}
+          </span>
+        </div>
+
+        <div class="perspective-1000 mb-4">
+          <div id="flashcardBox" class="relative min-h-[260px] ${
+            !flashcardFlipped
+              ? 'bg-gradient-to-br from-white via-indigo-50/80 to-fuchsia-100/70 border-fuchsia-300'
+              : 'bg-gradient-to-br from-emerald-50/90 via-teal-50/80 to-cyan-100/80 border-teal-300'
+          } rounded-3xl border-2 hover:shadow-xl shadow-md p-6 sm:p-8 flex flex-col justify-between cursor-pointer transition">
+            ${!flashcardFlipped ? `
+              <div>
+                <div class="flex items-center justify-between">
+                  <span class="px-3 py-1 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600 text-white text-xs font-bold">${escapeHtml(word.pos)}</span>
+                  <button
+                    id="btnSpeakWord"
+                    type="button"
+                    class="vivid-btn px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-amber-950 text-xs font-extrabold shadow-xs transition"
+                  >
+                    🔊 Дуудлага сонсох
+                  </button>
+                </div>
+                <div class="text-center py-8">
+                  <div class="text-3xl sm:text-4xl font-extrabold bg-gradient-to-r from-indigo-700 via-fuchsia-600 to-pink-600 bg-clip-text text-transparent tracking-tight">${escapeHtml(word.en)}</div>
+                  <p class="text-xs text-slate-500 mt-3 font-medium">Орчуулга болон жишээг харах бол карт дээр дарна уу</p>
+                </div>
+              </div>
+            ` : `
+              <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-extrabold text-indigo-800">${escapeHtml(word.en)} <span class="text-xs font-semibold text-fuchsia-700">(${escapeHtml(word.pos)})</span></span>
+                  <button
+                    id="btnSpeakEx"
+                    type="button"
+                    class="vivid-btn px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-amber-400 to-orange-400 text-amber-950 text-xs font-extrabold shadow-xs transition"
+                  >
+                    🔊 Өгүүлбэр сонсох
+                  </button>
+                </div>
+                <div class="text-xl sm:text-2xl font-extrabold text-teal-700">${escapeHtml(word.mn)}</div>
+                <div class="p-3.5 rounded-2xl bg-white/90 border-2 border-teal-200 space-y-1 shadow-2xs">
+                  <p class="text-sm font-semibold text-slate-800">"${escapeHtml(word.ex)}"</p>
+                  <p class="text-xs text-slate-600">${escapeHtml(word.exMn)}</p>
+                </div>
+              </div>
+            `}
+          </div>
+        </div>
+
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <button
+            id="btnPrevCard"
+            type="button"
+            class="vivid-btn px-4 py-2.5 rounded-xl bg-gradient-to-r from-slate-700 to-slate-900 text-white text-xs sm:text-sm font-bold shadow-xs transition"
+          >
+            ← Өмнөх
+          </button>
+
+          <button
+            id="btnMarkMemorized"
+            type="button"
+            class="vivid-btn px-5 py-2.5 rounded-xl ${
+              isMem
+                ? 'bg-gradient-to-r from-emerald-500 to-teal-600 text-white shadow-sm'
+                : 'bg-gradient-to-r from-fuchsia-600 via-pink-500 to-amber-500 text-white shadow-md'
+            } text-xs sm:text-sm font-extrabold transition"
+          >
+            ${isMem ? '✓ Цээжилсэн (+10 оноо авсан)' : 'Цээжилсэн гэж тэмдэглэх (+10 оноо)'}
+          </button>
+
+          <button
+            id="btnNextCard"
+            type="button"
+            class="vivid-btn px-4 py-2.5 rounded-xl bg-gradient-to-r from-indigo-600 to-cyan-600 text-white text-xs sm:text-sm font-bold shadow-xs transition"
+          >
+            Дараагийн →
+          </button>
+        </div>
+      `;
+
+      document.getElementById('flashcardBox').addEventListener('click', (e) => {
+        if (e.target.closest('button')) return;
+        flashcardFlipped = !flashcardFlipped;
+        renderFlashcards();
+      });
+
+      const speakBtn = document.getElementById('btnSpeakWord') || document.getElementById('btnSpeakEx');
+      if (speakBtn) {
+        speakBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          speakEnglish(flashcardFlipped ? word.ex : word.en);
+        });
+      }
+
+      document.getElementById('btnPrevCard').addEventListener('click', () => {
+        flashcardIndex = (flashcardIndex - 1 + words.length) % words.length;
+        flashcardFlipped = false;
+        renderFlashcards();
+      });
+
+      document.getElementById('btnNextCard').addEventListener('click', () => {
+        flashcardIndex = (flashcardIndex + 1) % words.length;
+        flashcardFlipped = false;
+        renderFlashcards();
+      });
+
+      document.getElementById('btnMarkMemorized').addEventListener('click', () => {
+        if (!student) return;
+        if (!student.memorizedWordIds.includes(word.id)) {
+          student.memorizedWordIds.push(word.id);
+          student.points = (student.points || 0) + 10;
+          saveState();
+          showToast(`"${word.en}" цээжилсэн үгэнд орлоо (+10 оноо)!`, 'success');
+          renderStudentHeaderAndProgress(student);
+        }
+        flashcardIndex = (flashcardIndex + 1) % words.length;
+        flashcardFlipped = false;
+        renderFlashcards();
+      });
+    }
+
+    function renderStudentHeaderAndProgress(student) {
+      const m = calculateStudentMetrics(student);
+      document.getElementById('studentMemorizedCount').textContent = `${m.memorizedCount}/${m.totalWords}`;
+      document.getElementById('studentPointsVal').textContent = m.points;
+      document.getElementById('studentAccuracyVal').textContent = `${m.accuracyPct}%`;
+      document.getElementById('studentProgressPercent').textContent = `${m.progressPct}%`;
+      document.getElementById('studentProgressBar').style.width = `${m.progressPct}%`;
+    }
+
+    // --- EXERCISES ---
+    function setupExercisesForFolder() {
+      const folderWords = appState.words.filter(w => String(w.folderId) === String(studentActiveFolderId));
+      const pool = folderWords.length >= 2 ? folderWords : appState.words;
+
+      exerciseQuestions = folderWords.map((w, idx) => {
+        const distractors = pool
+          .filter(item => item.id !== w.id)
+          .sort(() => Math.random() - 0.5)
+          .slice(0, 3);
+
+        if (idx % 2 === 0 || distractors.length === 0) {
+          // Meaning multiple choice
+          const options = [w.mn, ...distractors.map(d => d.mn)].sort(() => Math.random() - 0.5);
+          return {
+            wordId: w.id,
+            type: 'meaning',
+            prompt: `"${w.en}" (${w.pos}) үгийн монгол утга аль нь вэ?`,
+            options,
+            answer: w.mn
+          };
+        } else {
+          // Fill in blank in example sentence
+          const regex = new RegExp(`\\b${escapeRegExp(w.en)}\\b`, 'i');
+          const masked = regex.test(w.ex) ? w.ex.replace(regex, '______') : `${w.ex} (______ )`;
+          const options = [w.en, ...distractors.map(d => d.en)].sort(() => Math.random() - 0.5);
+          return {
+            wordId: w.id,
+            type: 'blank',
+            prompt: `Нөхөх дасгал: "${masked}"`,
+            hint: `Утга: ${w.mn}`,
+            options,
+            answer: w.en
+          };
+        }
+      });
+
+      exerciseIndex = 0;
+      exerciseScore = 0;
+      exerciseAnswered = false;
+      exerciseSelectedOption = null;
+    }
+
+    function renderExerciseQuestion() {
+      const container = document.getElementById('exerciseContainer');
+      const words = appState.words.filter(w => String(w.folderId) === String(studentActiveFolderId));
+
+      if (words.length === 0) {
+        container.innerHTML = `<div class="text-center text-sm text-slate-500 py-6">Энэ хавтаст дасгал хийх үг байхгүй байна.</div>`;
+        return;
+      }
+
+      if (exerciseIndex >= exerciseQuestions.length) {
+        const pct = exerciseQuestions.length > 0 ? Math.round((exerciseScore / exerciseQuestions.length) * 100) : 0;
+        container.innerHTML = `
+          <div class="text-center py-4 space-y-4">
+            <div class="inline-flex px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold">Дасгал дууслаа!</div>
+            <h3 class="text-2xl font-extrabold text-slate-900">Таны үр дүн: ${exerciseScore} / ${exerciseQuestions.length} (${pct}%)</h3>
+            <p class="text-xs sm:text-sm text-slate-500">Зөв хариулсан үгс цээжилсэн үгийн тоонд нэмэгдэж, амжилтын оноо тань шинэчлэгдлээ.</p>
+            <button
+              id="btnRestartExercise"
+              type="button"
+              class="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold transition"
+            >
+              Дасгал дахин эхлүүлэх
+            </button>
+          </div>
+        `;
+        document.getElementById('btnRestartExercise').addEventListener('click', () => {
+          setupExercisesForFolder();
+          renderExerciseQuestion();
+        });
+        return;
+      }
+
+      const q = exerciseQuestions[exerciseIndex];
+      container.innerHTML = `
+        <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-3">
+          <span>Асуулт ${exerciseIndex + 1} / ${exerciseQuestions.length}</span>
+          <span class="text-indigo-600 font-bold">Оноо: ${exerciseScore * 15}</span>
+        </div>
+
+        <h3 class="text-base sm:text-lg font-bold text-slate-900 mb-1">${escapeHtml(q.prompt)}</h3>
+        ${q.hint ? `<p class="text-xs text-teal-700 font-semibold mb-4">${escapeHtml(q.hint)}</p>` : `<div class="mb-4"></div>`}
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          ${q.options.map((opt, optIdx) => {
+            const optionAccents = [
+              'border-indigo-200 bg-gradient-to-r from-indigo-50/80 to-blue-50/80 hover:border-indigo-400 text-slate-900',
+              'border-purple-200 bg-gradient-to-r from-purple-50/80 to-fuchsia-50/80 hover:border-purple-400 text-slate-900',
+              'border-teal-200 bg-gradient-to-r from-teal-50/80 to-emerald-50/80 hover:border-teal-400 text-slate-900',
+              'border-amber-200 bg-gradient-to-r from-amber-50/80 to-orange-50/80 hover:border-amber-400 text-slate-900'
+            ];
+            let cls = optionAccents[optIdx % optionAccents.length];
+            if (exerciseAnswered) {
+              if (opt === q.answer) {
+                cls = 'border-emerald-600 bg-gradient-to-r from-emerald-500 to-teal-500 text-white font-extrabold shadow-xs';
+              } else if (opt === exerciseSelectedOption) {
+                cls = 'border-rose-600 bg-gradient-to-r from-rose-500 to-pink-500 text-white font-bold';
+              } else {
+                cls = 'border-slate-200 bg-slate-100 text-slate-400';
+              }
+            }
+            return `
+              <button
+                type="button"
+                data-opt="${escapeAttr(opt)}"
+                ${exerciseAnswered ? 'disabled' : ''}
+                class="ex-opt-btn p-3.5 rounded-xl border-2 text-left text-xs sm:text-sm font-bold transition ${cls}"
+              >
+                ${escapeHtml(opt)}
+              </button>
+            `;
+          }).join('')}
+        </div>
+
+        ${exerciseAnswered ? `
+          <div class="mt-5 pt-4 border-t border-slate-100 flex justify-end">
+            <button
+              id="btnNextExerciseQ"
+              type="button"
+              class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs sm:text-sm font-semibold transition"
+            >
+              ${exerciseIndex + 1 < exerciseQuestions.length ? 'Дараагийн асуулт →' : 'Үр дүн харах'}
+            </button>
+          </div>
+        ` : ''}
+      `;
+
+      container.querySelectorAll('.ex-opt-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (exerciseAnswered) return;
+          const chosen = btn.dataset.opt;
+          exerciseAnswered = true;
+          exerciseSelectedOption = chosen;
+          const isCorrect = chosen === q.answer;
+
+          const student = getCurrentStudent();
+          if (student) {
+            student.quizAttempts = (student.quizAttempts || 0) + 1;
+            if (isCorrect) {
+              student.quizCorrect = (student.quizCorrect || 0) + 1;
+              student.points = (student.points || 0) + 15;
+              if (!student.memorizedWordIds.includes(q.wordId)) {
+                student.memorizedWordIds.push(q.wordId);
+              }
+              exerciseScore += 1;
+            }
+            saveState();
+            renderStudentHeaderAndProgress(student);
+          }
+
+          renderExerciseQuestion();
+        });
+      });
+
+      const nextBtn = document.getElementById('btnNextExerciseQ');
+      if (nextBtn) {
+        nextBtn.addEventListener('click', () => {
+          exerciseIndex += 1;
+          exerciseAnswered = false;
+          exerciseSelectedOption = null;
+          renderExerciseQuestion();
+        });
+      }
+    }
+
+    // --- MINI-GAME: 30-SECOND SPEED WORD MATCH ---
+    function stopGameTimer() {
+      if (gameTimerId) {
+        clearInterval(gameTimerId);
+        gameTimerId = null;
+      }
+      gameRunning = false;
+    }
+
+    function renderGameLobbyOrPlay() {
+      const container = document.getElementById('gameContainer');
+      const words = appState.words.filter(w => String(w.folderId) === String(studentActiveFolderId));
+
+      if (words.length < 2) {
+        container.innerHTML = `<div class="text-center text-sm text-slate-500 py-6">Тоглоом тоглоход дор хаяж 2 үг шаардлагатай.</div>`;
+        return;
+      }
+
+      if (!gameRunning) {
+        container.innerHTML = `
+          <div class="text-center py-4 space-y-4">
+            <span class="inline-flex px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-extrabold">Хурдны Сорил Тоглоом</span>
+            <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900">30 секундийн дотор зөв утгыг олоорой!</h3>
+            <p class="text-xs sm:text-sm text-slate-500 max-w-md mx-auto">
+              Англи үгэнд тохирох монгол утгыг хурдан сонгож оноо цуглуулна. Зөв хариулсан үгс цээжилсэн үгэнд бүртгэгдэнэ.
+            </p>
+            ${gameTotalCount > 0 ? `
+              <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 max-w-sm mx-auto text-xs font-semibold text-slate-700">
+                Өмнөх тоглолт: <span class="text-teal-700 font-extrabold">${gameScore} оноо</span> (${gameCorrectCount}/${gameTotalCount} зөв)
+              </div>
+            ` : ''}
+            <button
+              id="btnStartGame"
+              type="button"
+              class="px-7 py-3 rounded-xl bg-gradient-to-r from-indigo-600 to-teal-600 hover:opacity-95 text-white font-bold text-sm shadow-sm transition"
+            >
+              Тоглоом эхлүүлэх
+            </button>
+          </div>
+        `;
+
+        document.getElementById('btnStartGame').addEventListener('click', () => {
+          startSpeedGame(words);
+        });
+        return;
+      }
+
+      // Active game round
+      const target = gameCurrentPair.target;
+      const choices = gameCurrentPair.choices;
+
+      container.innerHTML = `
+        <div class="flex items-center justify-between text-xs sm:text-sm font-bold mb-5 pb-3 border-b border-slate-100">
+          <span class="text-rose-600 font-mono">⏱ Хугацаа: ${gameTimeLeft}с</span>
+          <span class="text-teal-700">Оноо: ${gameScore}</span>
+        </div>
+
+        <div class="text-center mb-6">
+          <div class="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-1">Англи үг</div>
+          <div class="text-3xl sm:text-4xl font-extrabold text-slate-900">${escapeHtml(target.en)}</div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          ${choices.map((c, cIdx) => {
+            const btnColors = [
+              'border-indigo-300 bg-gradient-to-br from-indigo-50 to-blue-100/70 hover:from-indigo-600 hover:to-blue-600 hover:text-white text-indigo-950',
+              'border-teal-300 bg-gradient-to-br from-teal-50 to-emerald-100/70 hover:from-teal-600 hover:to-emerald-600 hover:text-white text-teal-950',
+              'border-purple-300 bg-gradient-to-br from-purple-50 to-fuchsia-100/70 hover:from-purple-600 hover:to-pink-600 hover:text-white text-purple-950',
+              'border-amber-300 bg-gradient-to-br from-amber-50 to-orange-100/70 hover:from-amber-500 hover:to-orange-500 hover:text-white text-amber-950'
+            ];
+            return `
+              <button
+                type="button"
+                data-gchoice="${escapeAttr(c.mn)}"
+                class="game-choice-btn p-4 rounded-xl border-2 ${btnColors[cIdx % btnColors.length]} text-sm font-extrabold shadow-2xs transition"
+              >
+                ${escapeHtml(c.mn)}
+              </button>
+            `;
+          }).join('')}
+        </div>
+      `;
+
+      container.querySelectorAll('.game-choice-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          if (!gameRunning) return;
+          const pickedMn = btn.dataset.gchoice;
+          gameTotalCount += 1;
+          const student = getCurrentStudent();
+
+          if (pickedMn === target.mn) {
+            gameScore += 20;
+            gameCorrectCount += 1;
+            if (student) {
+              student.points = (student.points || 0) + 20;
+              student.quizAttempts = (student.quizAttempts || 0) + 1;
+              student.quizCorrect = (student.quizCorrect || 0) + 1;
+              if (!student.memorizedWordIds.includes(target.id)) {
+                student.memorizedWordIds.push(target.id);
+              }
+              saveState();
+              renderStudentHeaderAndProgress(student);
+            }
+            showToast(`Зөв! "${target.en}" = ${target.mn} (+20)`, 'success');
+          } else {
+            if (student) {
+              student.quizAttempts = (student.quizAttempts || 0) + 1;
+              saveState();
+              renderStudentHeaderAndProgress(student);
+            }
+            showToast(`Буруу. Зөв утга: ${target.mn}`, 'error');
+          }
+
+          gameCurrentPair = buildGameRound(words);
+          renderGameLobbyOrPlay();
+        });
+      });
+    }
+
+    function buildGameRound(words) {
+      const target = words[Math.floor(Math.random() * words.length)];
+      const others = words.filter(w => w.id !== target.id).sort(() => Math.random() - 0.5).slice(0, 3);
+      const choices = [target, ...others].sort(() => Math.random() - 0.5);
+      return { target, choices };
+    }
+
+    function startSpeedGame(words) {
+      stopGameTimer();
+      gameRunning = true;
+      gameTimeLeft = 30;
+      gameScore = 0;
+      gameCorrectCount = 0;
+      gameTotalCount = 0;
+      gameCurrentPair = buildGameRound(words);
+      renderGameLobbyOrPlay();
+
+      gameTimerId = setInterval(() => {
+        gameTimeLeft -= 1;
+        if (gameTimeLeft <= 0) {
+          stopGameTimer();
+          showToast(`Хугацаа дууслаа! ${gameScore} оноо цуглууллаа.`, 'info');
+          renderGameLobbyOrPlay();
+        } else {
+          renderGameLobbyOrPlay();
+        }
+      }, 1000);
+    }
+
+    // ==================== UTILITIES ====================
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function escapeAttr(str) {
+      return escapeHtml(str);
+    }
+
+    function escapeRegExp(str) {
+      return String(str || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
+
+    // ==================== INITIALIZE APP ====================
+
+    window.addEventListener('DOMContentLoaded', () => {
+      initAuthUI();
+      initTeacherEvents();
+      initStudentEvents();
+      renderApp();
+    });
+  </script>
+</body>
+</html>
